@@ -35,9 +35,11 @@ public class PaintSurface extends JComponent{
 	static int xcount = 0;
 	static int ycount = 0;
 	static Color color = Color.BLACK;
+	public static int strokeValue = 2;
 	public static String shapeType = "";
 	public static int drawType = 0;
 	public static String text = "";
+	public static int eraserSize = 10;
 	
 	
 	public PaintSurface(){
@@ -52,11 +54,12 @@ public class PaintSurface extends JComponent{
 			@Override
 			public void mouseReleased(MouseEvent e){
 				Shape r = null;
-				MyShape myShape = new MyShape(r, drawType, color);
+				MyShape myShape = new MyShape(r, drawType, color, strokeValue);
 				if(shapeType.equals("Line")){
 					r = makeLine(startDrag.x, startDrag.y, e.getX(), e.getY());
 					myShape.setShape(r);
 					myShape.setColor(color);
+					myShape.setStrokeValue(strokeValue);
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
@@ -64,6 +67,7 @@ public class PaintSurface extends JComponent{
 					r = makeRectangle(startDrag.x, startDrag.y, e.getX(), e.getY());
 					myShape.setShape(r);
 					myShape.setColor(color);
+					myShape.setStrokeValue(strokeValue);
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
@@ -71,6 +75,7 @@ public class PaintSurface extends JComponent{
 					r = makeCircle(startDrag.x, startDrag.y, e.getX(), e.getY());
 					myShape.setShape(r);
 					myShape.setColor(color);
+					myShape.setStrokeValue(strokeValue);
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
@@ -78,6 +83,7 @@ public class PaintSurface extends JComponent{
 					r = makeOval(startDrag.x, startDrag.y, e.getX(), e.getY());
 					myShape.setShape(r);
 					myShape.setColor(color);
+					myShape.setStrokeValue(strokeValue);
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
@@ -88,6 +94,7 @@ public class PaintSurface extends JComponent{
 					ycount++;
 				}else if(shapeType.equals("Eraser")){
 					r = erase(startDrag.x, startDrag.y, e.getX(), e.getY());
+					//r = eraser(startDrag.x, startDrag.y, eraserSize);
 					myShape.setShape(r);
 					myShape.setColor(Color.LIGHT_GRAY);
 					myShape.setDrawType(1);
@@ -96,7 +103,7 @@ public class PaintSurface extends JComponent{
 					ycount = 0;
 				}else if(shapeType.equals("Text")){
 					showTextDialog();
-					MyShape myTextShape = new MyShape(r, 3, color);
+					MyShape myTextShape = new MyShape(r, 3, color, strokeValue);
 					myTextShape.setPos(startDrag);
 					myTextShape.setText(text);
 					shapes.add(myTextShape);
@@ -112,7 +119,7 @@ public class PaintSurface extends JComponent{
 			public void mouseClicked(MouseEvent e){
 				if(e.getButton() == MouseEvent.BUTTON3){
 					Shape r = makeGeneralPath(x, y, xcount);
-					MyShape myShape = new MyShape(r, drawType, color);
+					MyShape myShape = new MyShape(r, drawType, color, strokeValue);
 					myShape.setColor(color);
 					shapes.add(myShape);
 					xcount = 0;
@@ -144,12 +151,13 @@ public class PaintSurface extends JComponent{
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		paintBackground(g2);
 		
-		g2.setStroke(new BasicStroke(2));
+		//g2.setStroke(new BasicStroke(strokeValue));
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.00f));
 		
 		for(MyShape s : shapes){
 			//g2.setPaint(colors[s.getMyColorIndex()]);
 			g2.setPaint(s.getColor());
+			g2.setStroke(new BasicStroke(s.getStrokeValue()));
 			if(s.getDrawType() == 3){
 				g2.drawString(s.getText(), s.getPos().x, s.getPos().y);
 			}else{
@@ -212,6 +220,11 @@ public class PaintSurface extends JComponent{
 	
 	private Rectangle2D.Float erase(int x1, int y1, int x2, int y2){
 		return new Rectangle2D.Float(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x1 - x2), Math.abs(y1 - y2));
+	}
+	
+	private Rectangle2D.Float eraser(int x, int y, int eraserSize){
+		double half = eraserSize / 2;
+		return new Rectangle2D.Float(x, y, eraserSize, eraserSize);
 	}
 	
 	private void showTextDialog(){

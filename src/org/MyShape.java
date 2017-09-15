@@ -10,12 +10,14 @@ public class MyShape {
 	private String text;
 	private Point pos;
 	private int drawType;
+	private int strokeValue;
 	
-	public MyShape(Shape s, int drawType, Color color){
+	public MyShape(Shape s, int drawType, Color color, int strokeValue){
 		this.s = s;
 		this.drawType = drawType;
 		this.color = color;
 		this.text = "";
+		this.strokeValue = strokeValue;
 	}
 	
 	public Shape getShape(){
@@ -58,5 +60,15 @@ public class MyShape {
 	public void setText(String text){
 		this.text = text;
 	}
+
+	public int getStrokeValue() {
+		return strokeValue;
+	}
+
+	public void setStrokeValue(int strokeValue) {
+		this.strokeValue = strokeValue;
+	}
+	
+	
 
 }

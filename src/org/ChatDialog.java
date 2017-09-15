@@ -1,16 +1,14 @@
 package org;
 
 import java.awt.Font;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
-public class ChatFrame {
-	public JFrame frame;
+public class ChatDialog {
+	public JDialog jDialog;
 	private JLabel lblInputText;
 	private JLabel lblChat;
 	private JTextArea chatInput;
@@ -18,52 +16,44 @@ public class ChatFrame {
 	private JButton btnSend;
 	private JButton btnClose;
 	
-	
-	public ChatFrame() {
-		initialize();
-		
-		btnClose.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				frame.dispose();
-			}
-		});
+	public ChatDialog(){
+		init();
+		jDialog.setModal(true);
+		jDialog.setVisible(true);
 	}
 	
-	private void initialize() {
-		frame = new JFrame();
-		frame.setBounds(400, 400, 400, 350);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.getContentPane().setLayout(null);
-		frame.setTitle("Chat Window");
+	public void init(){
+		jDialog = new JDialog();
+		jDialog.setBounds(400, 400, 400, 350);
+		jDialog.getContentPane().setLayout(null);
+		jDialog.setTitle("Chat Window");
 		
 		lblInputText = new JLabel("Input Text");
 		lblInputText.setFont(new Font("Times New Roman", Font.BOLD,20));
 		lblInputText.setBounds(57, 18, 110, 16);
-		frame.getContentPane().add(lblInputText);
+		jDialog.getContentPane().add(lblInputText);
 		
 		lblChat = new JLabel("Chat");
 		lblChat.setFont(new Font("Times New Roman", Font.BOLD,20));
 		lblChat.setBounds(256, 18, 61, 16);
-		frame.getContentPane().add(lblChat);
+		jDialog.getContentPane().add(lblChat);
 		
 		chatInput = new JTextArea();
 		chatInput.setBounds(204, 46, 173, 186);
-		frame.getContentPane().add(chatInput);
+		jDialog.getContentPane().add(chatInput);
 		
 		chatShow = new JTextArea();
 		chatShow.setBounds(19, 46, 173, 186);
-		frame.getContentPane().add(chatShow);
+		jDialog.getContentPane().add(chatShow);
 		
 		btnSend = new JButton("Send");
 		btnSend.setBounds(50, 258, 117, 29);
-		frame.getContentPane().add(btnSend);
+		jDialog.getContentPane().add(btnSend);
 		
 		btnClose = new JButton("Close");
 		btnClose.setBounds(225, 258, 117, 29);
-		frame.getContentPane().add(btnClose);
-
-		
+		jDialog.getContentPane().add(btnClose);
 	}
+	
 
 }
