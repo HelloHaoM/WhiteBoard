@@ -316,11 +316,15 @@ public class WhiteBoardClient {
 	}
 	
 	private void showPaintSize(){
+		String FileDir = System.getProperty("user.dir");
 		JDialog jDialog = new JDialog();
 		jDialog.setBounds(100, 100, 200, 80);
 		jDialog.setTitle("Paint Size");
 		jDialog.getContentPane().setLayout(new GridLayout(1, 3));
-		JButton btnSize1 = new JButton("Size1");
+		JButton btnSize1 = new JButton();
+		String smallDir = FileDir + "/Img/small.png";
+		Icon small = new ImageIcon(smallDir);
+		btnSize1.setIcon(small);
 		jDialog.getContentPane().add(btnSize1);
 		btnSize1.addMouseListener(new MouseAdapter() {
 			@Override
@@ -329,7 +333,10 @@ public class WhiteBoardClient {
 				jDialog.dispose();
 			}
 		});
-		JButton btnSize2 = new JButton("Size2");
+		JButton btnSize2 = new JButton();
+		String midDir = FileDir + "/Img/mid.png";
+		Icon mid = new ImageIcon(midDir);
+		btnSize2.setIcon(mid);
 		jDialog.getContentPane().add(btnSize2);
 		btnSize2.addMouseListener(new MouseAdapter() {
 			@Override
@@ -339,49 +346,15 @@ public class WhiteBoardClient {
 			}
 		});
 		
-		JButton btnSize3 = new JButton("Size3");
+		JButton btnSize3 = new JButton();
+		String bigDir = FileDir + "/Img/big.png";
+		Icon big = new ImageIcon(bigDir);
+		btnSize3.setIcon(big);
 		jDialog.getContentPane().add(btnSize3);
 		btnSize3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.strokeValue = 10;
-				jDialog.dispose();
-			}
-		});
-		jDialog.setModal(true);
-		jDialog.setVisible(true);
-	}
-	
-	private void showEraserSize(){
-		JDialog jDialog = new JDialog();
-		jDialog.setBounds(100, 180, 100, 100);
-		jDialog.setTitle("Eraser Size");
-		jDialog.getContentPane().setLayout(new GridLayout(1, 3));
-		JButton btnSize1 = new JButton("Size1");
-		jDialog.getContentPane().add(btnSize1);
-		btnSize1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.eraserSize = 5;
-				jDialog.dispose();
-			}
-		});
-		JButton btnSize2 = new JButton("Size2");
-		jDialog.getContentPane().add(btnSize2);
-		btnSize2.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.eraserSize = 10;
-				jDialog.dispose();
-			}
-		});
-		
-		JButton btnSize3 = new JButton("Size3");
-		jDialog.getContentPane().add(btnSize3);
-		btnSize3.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.eraserSize = 15;
 				jDialog.dispose();
 			}
 		});
