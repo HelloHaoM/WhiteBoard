@@ -13,9 +13,12 @@ import remote.IRemoteWBService;
 
 /**
  * This class is for testing the rmi architecture.
- * Creates instances of the RemoteMath (test), RemoteClient(call back obejct),
+ * Creates instances of the RemoteMath (test),
  * RemoteWBService (management) class and
  * publishes them in the rmiregistry
+ * 
+ * IRemoteClient do not need to be bind in registry,
+ * because it transfer itself to IRemoteServer
  * 
  * @author tianzhangh
  */
@@ -36,15 +39,13 @@ public class RMIServer {
 			
 			IRemoteMath remoteMath = new RemoteMath();
 			IRemoteWBService remoteWB = new RemoteWBService();
-			IRemoteClient remoteClient = new RemoteClient();
 			
             
-            //Publish the remote object's stub in the registry under the name "Compute"
+            //Publish the remote object's stub in the registry
             Registry registry = LocateRegistry.createRegistry(SERVER_PORT);
-            registry.bind("Compute", remoteMath);
-            registry.bind(IRemoteClient.LOOKUP_NAME, remoteClient);
-            registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);
-            
+            registry.bind("Compute", remoteMath);            
+            registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);            
+   
             
             
             System.out.println("Math server ready");

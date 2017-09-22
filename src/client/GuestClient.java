@@ -1,5 +1,5 @@
 package client;
-import java.rmi.AlreadyBoundException;
+
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,15 +11,13 @@ import remote.IRemoteMath;
 import remote.IRemoteServer;
 import remote.IRemoteWBService;
 import server.RemoteClient;
-
 /**
- * This class is for testing the rmi architecture
+ * Guest Client Class for test
  * @author tianzhangh
  *
  */
-public class MathClient {
-
-	public static void main(String[] args) {
+public class GuestClient {
+public static void main(String[] args) {
 		
 		try {
 
@@ -36,25 +34,15 @@ public class MathClient {
 			IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 			
 			String roomname ="whiteboard1";
-			IRemoteClient manager = new RemoteClient(0, "tianzhangh");
-			manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
-			
-			IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
-			if(remoteserver != null) {
-				remoteserver.setManager(manager);
-			}
-			
-		    //add manager
-			remoteserver.addClient(manager);
+			IRemoteServer remoteserver = remoteWB.getRoom(remoteClient, roomname);
 			
 			System.out.println("Room: "+ roomname);
 			System.out.println("Manager: "+ remoteserver.getManager().getClientName());
 			
-			
 			//add some clients for test
-			//remoteserver.addClient(remoteClient);
-			//System.out.println("Client No. :" + remoteClient.getClientId());
-			//System.out.println("Client UserName: "+remoteClient.getClientName());
+			remoteserver.addClient(remoteClient);
+			System.out.println("Client No. :" + remoteClient.getClientId());
+			System.out.println("Client UserName: "+remoteClient.getClientName());
 			
 			
 			// do some jobs in start method
@@ -73,11 +61,10 @@ public class MathClient {
 				}				
 			}
 			
-		} catch (RemoteException | NotBoundException | AlreadyBoundException e) {
+		} catch (RemoteException | NotBoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} 
 		
 	}
-	
 }

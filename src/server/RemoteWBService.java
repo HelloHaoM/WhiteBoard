@@ -43,7 +43,7 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 			return null;
 		}else {
 			roomNum++;
-			IRemoteServer remoteserver = new RemoteServer();
+			IRemoteServer remoteserver = new RemoteServer(roomname);
 			// bind this remote server by using room name
 			registry.bind(roomname, remoteserver);
 			roomMap.put(roomname, remoteserver);
@@ -58,14 +58,12 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 	}
 	
 	@Override
-	public IRemoteServer getRoom(IRemoteClient manager, String roomname) throws RemoteException {
-		if(this.checkLv(manager) ==  false)
-			return null;
+	public IRemoteServer getRoom(IRemoteClient client, String roomname) throws RemoteException {
 		if(roomMap.containsKey(roomname)) {
-			manager.alert("Succeed: access to "+ roomname);
+			client.alert("Succeed: access to "+ roomname);
 			return roomMap.get(roomname);
 		}else {
-			manager.alert(roomname+" does not exist.");
+			client.alert(roomname+" does not exist.");
 			return null;
 		}
 	}
