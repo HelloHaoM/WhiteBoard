@@ -36,10 +36,13 @@ public class PaintSurface extends JComponent{
 	static int ycount = 0;
 	static Color color = Color.BLACK;
 	public static int strokeValue = 2;
+	public static int eraserSize = 10;
 	public static String shapeType = "";
 	public static int drawType = 0;
 	public static String text = "";
-	public static int eraserSize = 10;
+	
+	public Graphics gg;
+	public Shape eraserShape;
 	
 	
 	public PaintSurface(){
@@ -92,12 +95,22 @@ public class PaintSurface extends JComponent{
 					y[ycount] = startDrag.y;
 					xcount++;
 					ycount++;
-				}else if(shapeType.equals("Eraser")){
-					r = erase(startDrag.x, startDrag.y, e.getX(), e.getY());
-					//r = eraser(startDrag.x, startDrag.y, eraserSize);
+					x[xcount] = e.getX();
+					y[xcount] = e.getY();
+					xcount++;
+					ycount++;
+					r = makeLine(startDrag.x, startDrag.y, e.getX(), e.getY());
 					myShape.setShape(r);
-					myShape.setColor(Color.LIGHT_GRAY);
-					myShape.setDrawType(1);
+					myShape.setColor(color);
+					myShape.setStrokeValue(strokeValue);
+					shapes.add(myShape);
+				}else if(shapeType.equals("Eraser")){
+					//r = erase(startDrag.x, startDrag.y, e.getX(), e.getY());
+					r = eraser(startDrag.x, startDrag.y, e.getX(), e.getY());
+					myShape.setShape(r);
+					myShape.setColor(WhiteBoardClient.frame.getBackground());
+					myShape.setDrawType(4);
+					myShape.setEraserSize(eraserSize);
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
@@ -121,6 +134,7 @@ public class PaintSurface extends JComponent{
 					Shape r = makeGeneralPath(x, y, xcount);
 					MyShape myShape = new MyShape(r, drawType, color, strokeValue);
 					myShape.setColor(color);
+					myShape.setStrokeValue(strokeValue);
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
@@ -135,18 +149,35 @@ public class PaintSurface extends JComponent{
 			@Override
 			public void mouseDragged(MouseEvent e){
 				endDrag = new Point(e.getX(), e.getY());
+				if(shapeType.equals("Eraser")){
+					eraserShape = new Rectangle2D.Float(e.getX() - eraserSize/2, e.getY() - eraserSize/2, eraserSize, eraserSize);
+				}
 				repaint();
 			}
+			
+			@Override
+			public void mouseMoved(MouseEvent e){
+				if(shapeType.equals("Eraser")){
+					eraserShape = new Rectangle2D.Float(e.getX() - eraserSize/2, e.getY() - eraserSize/2, eraserSize, eraserSize);
+					repaint();
+				}
+			}
 		});
-		
 	}
 	
 	private void paintBackground(Graphics2D g2){
-		g2.setPaint(Color.LIGHT_GRAY);;
+		g2.setPaint(Color.LIGHT_GRAY);
+	}
+	
+	public void paintEraser(Shape r){
+		Graphics2D g2 = (Graphics2D) gg;
+		g2.setColor(Color.BLACK);
+		g2.fill(r);
 	}
 	
 	
 	public void paint(Graphics g){
+		gg = g;
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 		paintBackground(g2);
@@ -157,7 +188,11 @@ public class PaintSurface extends JComponent{
 		for(MyShape s : shapes){
 			//g2.setPaint(colors[s.getMyColorIndex()]);
 			g2.setPaint(s.getColor());
-			g2.setStroke(new BasicStroke(s.getStrokeValue()));
+			if(s.getDrawType() == 4){
+				g2.setStroke(new BasicStroke(s.getEraserSize()));
+			}else{
+				g2.setStroke(new BasicStroke(s.getStrokeValue()));
+			}
 			if(s.getDrawType() == 3){
 				g2.drawString(s.getText(), s.getPos().x, s.getPos().y);
 			}else{
@@ -178,11 +213,30 @@ public class PaintSurface extends JComponent{
 //			g2.fill(s);
 //		}
 		
-//		if (startDrag != null && endDrag != null) {
-//	        g2.setPaint(Color.LIGHT_GRAY);
-//	        Shape r = makeRectangle(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
-//	        g2.draw(r);
-//	      }
+		if (startDrag != null && endDrag != null) {
+	        g2.setPaint(Color.LIGHT_GRAY);
+	        Shape r = null;
+	        if(shapeType.equals("Line")){
+	        	r = makeLine(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
+	        	g2.draw(r);
+	        }else if(shapeType.equals("Rectangle")){
+	        	r = makeRectangle(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
+	        	g2.draw(r);
+	        }else if(shapeType.equals("Circle")){
+	        	r = makeCircle(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
+	        	g2.draw(r);
+	        }else if(shapeType.equals("Oval")){
+	        	r = makeOval(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
+	        	g2.draw(r);
+	        }else if(shapeType.equals("Free")){
+	        	r = makeLine(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
+	        	g2.draw(r);
+	        }
+	        
+	      }
+		if(shapeType.equals("Eraser")){
+			paintEraser(eraserShape);
+		}
 		
 		
 	}
@@ -214,7 +268,7 @@ public class PaintSurface extends JComponent{
 		for(int i = 0; i < count; i++){
 			path.lineTo(x[i], y[i]);
 		}
-		//path.closePath();
+		path.closePath();
 		return path;
 	}
 	
@@ -222,29 +276,11 @@ public class PaintSurface extends JComponent{
 		return new Rectangle2D.Float(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x1 - x2), Math.abs(y1 - y2));
 	}
 	
-	private Rectangle2D.Float eraser(int x, int y, int eraserSize){
-		double half = eraserSize / 2;
-		return new Rectangle2D.Float(x, y, eraserSize, eraserSize);
+	private Line2D.Float eraser(int x1, int y1, int x2, int y2){
+		return new Line2D.Float(x1,y1,x2,y2);
 	}
 	
 	private void showTextDialog(){
-		JDialog jDialog = new JDialog();
-		jDialog.setBounds(320, 180, 260, 100);
-		jDialog.setTitle("Text Input");
-		jDialog.getContentPane().setLayout(new GridLayout(1, 1));
-		//jDialog.add(new JLabel("Input a Text"));
-		JTextField jTextField = new JTextField(80);
-		jDialog.add(jTextField);
-		JButton btnOk = new JButton("OK");
-		jDialog.add(btnOk);
-		btnOk.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				text = jTextField.getText();
-				jDialog.dispose();
-			}
-		});
-		jDialog.setModal(true);
-		jDialog.setVisible(true);
+		TextDialog textDialog = new TextDialog();
 	}
 }

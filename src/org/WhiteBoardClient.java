@@ -7,6 +7,7 @@ import java.awt.Font;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JMenu;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -32,10 +33,18 @@ import java.awt.Dimension;
 import javax.swing.JScrollBar;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.UIManager;
+
+import org.jvnet.substance.SubstanceLookAndFeel;
+import org.jvnet.substance.theme.SubstanceAquaTheme;
+import org.jvnet.substance.theme.SubstanceEbonyTheme;
+
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 
 public class WhiteBoardClient {
 
-	private JFrame frame;
+	public static JFrame frame;
 	private JPanel titlePanel;
 	private JLabel lblWhiteboard;
 	private JPanel functionPanel;
@@ -54,11 +63,18 @@ public class WhiteBoardClient {
 	private JLabel lblChat;
 	private JButton btnOpenChat;
 	private JButton btnPaintSize;
+	private JMenuBar menuBar;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+//		try{
+//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+//	
+//		}catch(Exception e){
+//			e.printStackTrace();
+//		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -134,7 +150,7 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Eraser";
-				//showEraserSize();
+				showEraserSize();
 			}
 		});
 		
@@ -176,7 +192,7 @@ public class WhiteBoardClient {
 	 */
 	private void initialize() {
 		frame = new JFrame();
-		frame.getContentPane().setBackground(Color.LIGHT_GRAY);
+		//frame.getContentPane().setBackground(Color.LIGHT_GRAY);
 		//frame.setBounds(100, 100, 450, 300);
 		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -313,53 +329,34 @@ public class WhiteBoardClient {
 		gbc_btnOpenChat.gridy = 16;
 		functionPanel.add(btnOpenChat, gbc_btnOpenChat);
 		
+		JMenu fileMenu = new JMenu("File");
+		JMenuItem newMenuItem = new JMenuItem("New");
+		newMenuItem.setActionCommand("New");
+		JMenuItem openMenuItem = new JMenuItem("Open");
+		openMenuItem.setActionCommand("Open");
+		JMenuItem saveMenuItem = new JMenuItem("Save");
+		saveMenuItem.setActionCommand("Save");
+		JMenuItem saveAsMenuItem = new JMenuItem("Save As");
+		saveAsMenuItem.setActionCommand("Save As");
+		
+		fileMenu.add(newMenuItem);
+		fileMenu.add(openMenuItem);
+		fileMenu.add(saveMenuItem);
+		fileMenu.add(saveAsMenuItem);
+		
+		menuBar = new JMenuBar();
+		menuBar.add(fileMenu);
+		
+		frame.setJMenuBar(menuBar);
+		
 	}
 	
 	private void showPaintSize(){
-		String FileDir = System.getProperty("user.dir");
-		JDialog jDialog = new JDialog();
-		jDialog.setBounds(100, 100, 200, 80);
-		jDialog.setTitle("Paint Size");
-		jDialog.getContentPane().setLayout(new GridLayout(1, 3));
-		JButton btnSize1 = new JButton();
-		String smallDir = FileDir + "/Img/small.png";
-		Icon small = new ImageIcon(smallDir);
-		btnSize1.setIcon(small);
-		jDialog.getContentPane().add(btnSize1);
-		btnSize1.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.strokeValue = 2;
-				jDialog.dispose();
-			}
-		});
-		JButton btnSize2 = new JButton();
-		String midDir = FileDir + "/Img/mid.png";
-		Icon mid = new ImageIcon(midDir);
-		btnSize2.setIcon(mid);
-		jDialog.getContentPane().add(btnSize2);
-		btnSize2.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.strokeValue = 6;
-				jDialog.dispose();
-			}
-		});
-		
-		JButton btnSize3 = new JButton();
-		String bigDir = FileDir + "/Img/big.png";
-		Icon big = new ImageIcon(bigDir);
-		btnSize3.setIcon(big);
-		jDialog.getContentPane().add(btnSize3);
-		btnSize3.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.strokeValue = 10;
-				jDialog.dispose();
-			}
-		});
-		jDialog.setModal(true);
-		jDialog.setVisible(true);
+		PaintSizeDialog paintSizeDialog = new PaintSizeDialog();
+	}
+	
+	private void showEraserSize(){
+		EraserSizeDialog eraserSizeDialog = new EraserSizeDialog();
 	}
 	
 	private void showChatWindow(){

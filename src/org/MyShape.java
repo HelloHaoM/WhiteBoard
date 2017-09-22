@@ -9,8 +9,9 @@ public class MyShape {
 	private Color color;
 	private String text;
 	private Point pos;
-	private int drawType;
+	private int drawType; //1: fill, 2: line, 3: text, 4: eraser
 	private int strokeValue;
+	private int eraserSize;
 	
 	public MyShape(Shape s, int drawType, Color color, int strokeValue){
 		this.s = s;
@@ -68,6 +69,16 @@ public class MyShape {
 	public void setStrokeValue(int strokeValue) {
 		this.strokeValue = strokeValue;
 	}
+
+	public int getEraserSize() {
+		return eraserSize;
+	}
+
+	public void setEraserSize(int eraserSize) {
+		this.eraserSize = eraserSize;
+	}
+	
+	
 	
 	
 
