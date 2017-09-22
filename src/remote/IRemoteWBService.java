@@ -12,7 +12,7 @@ public interface IRemoteWBService extends Remote {
 	public static final String LOOKUP_NAME = "RoomManage";
 
 	public IRemoteServer createRoom(IRemoteClient manager, String roomname) throws RemoteException, AlreadyBoundException;
-	public IRemoteServer getRoom(IRemoteClient manager, String roomname) throws RemoteException;
+	public IRemoteServer getRoom(IRemoteClient client, String roomname) throws RemoteException;
 	public boolean removeRoom(IRemoteClient manager, String roomname) throws RemoteException;
 	public void clearAllRoom() throws RemoteException;
 	public boolean checkLv(IRemoteClient manager) throws RemoteException;

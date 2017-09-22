@@ -1,5 +1,7 @@
 package server;
 
+import java.awt.Color;
+import java.awt.Shape;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
@@ -13,30 +15,36 @@ import java.util.concurrent.TimeUnit;
 
 import remote.IRemoteClient;
 import remote.IRemoteServer;
+import remote.IRemoteWBItem;
 /**
- * This is the implement of RemoteServer Object
+ * This is the implement of RemoteServer Object,
+ * which contains the management of One WhiteBoard Room and its clients and IRemoteWBItem
+ * which update the new client and its IRemoteWBItem to other clients
  * @author tianzhangh
  *
  */
-
 public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 	private Map<String, IRemoteClient> clients;
 	private Map<String, IRemoteClient> requestClients;
+	private Set<IRemoteWBItem> shapes;
+	
 	private static int clientNum; //synchronized it later
 	private static int requestNum;
 	private static IRemoteClient roomManager;
+	private String roomName;
 	private static int LOOKUP_NAME;
 	
-	protected RemoteServer() throws RemoteException {
+	protected RemoteServer(String roomName) throws RemoteException {
 		super();
 		clientNum = 0;
 		requestNum = 0;
 		// initialize added clients and requesting clients map
 		this.clients = new ConcurrentHashMap<String, IRemoteClient>();
-		//this.requestClients = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteClient, Boolean>());
+		this.shapes = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem, Boolean>());
 		this.requestClients = new ConcurrentHashMap<String, IRemoteClient>();
+		this.roomName = roomName;
 		
-		// add client watch dog
+		// add client watch dog thread
 		Thread t = new Thread(()->this.clientWatchDog());
 		t.start();
 	}
@@ -45,10 +53,10 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 	public boolean setManager(IRemoteClient manager) throws RemoteException{
 		if(manager.getClietnLevel() == RemoteClient.ClientLevel.MANAGER) {
 			roomManager = manager;
-			manager.alert("room creation succeed");
+			manager.alert(this.roomName +" room root succeed");
 			return true;
 		}else {
-			manager.alert("room creation denied");
+			manager.alert(this.roomName +" room root denied");
 			return false;
 		}
 	}
@@ -65,7 +73,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		if(clients.containsKey(clientname)){
 			this.clients.remove(clientname);
 			String msg = clientname + "removed.";
-			System.out.println(msg);
+			System.out.println(msg+" in "+this.roomName);
 			this.updateAllClients(msg);
 			clientNum--;
 		}
@@ -89,7 +97,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		if(!clients.containsKey(clientname)) {
 			clientNum++; //synchronized it later
 		    this.clients.put(clientname, client);
-		    String msg = clientname + "added.";
+		    String msg = clientname + " added in "+ this.roomName;
 		    System.out.println(msg);
 		    this.updateAllClients(msg);
 		}
@@ -98,6 +106,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		}
 		
 	}
+	
 	@Override
 	public void addClient(String clientname, IRemoteClient client) throws RemoteException {
 		
@@ -106,7 +115,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		if(!clients.containsKey(clientname)) {
 			clientNum++;
 			this.clients.put(clientname, client);
-			String msg = clientname+ " added.";
+			String msg = clientname+ " added in room " + this.roomName;
 			System.out.println(msg);
 			this.updateAllClients(msg);
 		}
@@ -152,8 +161,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		return this.getClients().get(clientname).getClientId();
 	}
 
-
-
 	@Override
 	public IRemoteClient getClient(String clientname) throws RemoteException {		
 		return this.getClients().get(clientname);
@@ -176,6 +183,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 				requestNum++;
 				requestClients.put(clientname, client);
 				client.alert("Please waiting for Room Manager Approve....");
+				this.getManager().alert("new request");
 			}else {
 				client.alert(clientname + "name exist. Request Denied");
 			}
@@ -187,34 +195,135 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 
 	@Override
 	public void approveRequest(IRemoteClient manager, String clientname) throws RemoteException {
-		requestNum--;
-		IRemoteClient client = this.requestClients.get(clientname);
-		if(!clients.containsKey(client.getClientName())) {
-			this.addClient(client.getClientName(), client);
+		if(checkManager(manager) == true) {
+			requestNum--;
+			IRemoteClient client = this.requestClients.get(clientname);
+			if(!clients.containsKey(client.getClientName())) {
+				this.addClient(client.getClientName(), client);
+			}else {
+				client.alert("Request Denied");
+				manager.alert(client.getClientName()+" Already Exist");
+			}
 		}else {
-			client.alert("Request Denied");
-			manager.alert(client.getClientName()+" Already Exist");
+			manager.alert("unauthorized");
 		}
+
 		
 		
 	}
-
+		
 	@Override
 	public void clearRequestList(IRemoteClient manager) throws RemoteException {
-		requestNum = 0;
-		
+		if(checkManager(manager) == true) {
+			requestNum = 0;
+			Set<Entry<String, IRemoteClient>> set = this.requestClients.entrySet();
+			for(Entry<String, IRemoteClient> entry: set) {
+				entry.getValue().alert("request denied");
+			}
+			this.requestClients.clear();
+			manager.alert("requestlist cleared");
+		}else {
+			manager.alert("clearing requestlist failed");
+		}
 	}
 
 	@Override
 	public void removeRequest(IRemoteClient manager, String clientname) throws RemoteException {
-		requestNum--;
-		
+		if(checkManager(manager) == true) {
+			if(this.requestClients.containsKey(clientname)) {
+				requestNum--;
+				IRemoteClient client = this.requestClients.get(clientname);
+				client.alert("your request has been denied");
+				this.requestClients.remove(clientname);
+				manager.alert(clientname +" request has been denied");
+			}else {
+				manager.alert(clientname + "does not exist");
+			}
+		}else {
+			manager.alert("unauthorized");
+		}
 	}
 
 	@Override
 	public IRemoteClient getManager() throws RemoteException {
 		return roomManager;
 	}
+	
+	private boolean checkManager(IRemoteClient manager) throws RemoteException {
+		if(this.getManager().getClientName().equalsIgnoreCase(manager.getClientName())) {
+			return true;
+		}else {
+			return false;
+		}
+			
+	}
+	
+	/***
+     * Given an IRemoteClient, and a java.awt.Shape shape, create an IRemoteWBItem, store it, and
+     * distribute it to all clients in this room.
+     *
+     * @param client The source client
+     * @param shape The shape to be distributed add
+     * @throws RemoteException
+     */
+	@Override
+	public void addShape(IRemoteClient client, Shape shape, Color colour) throws RemoteException {
+		IRemoteWBItem itemShape = new RemoteWBItem(client, shape, colour);
+		this.shapes.add(itemShape);
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for(Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			remoteclient.retrieveShape(itemShape);
+			remoteclient.alert("new shape added from " + client.getClientName());
+		}	
+	}
+	/**
+	 * Given an IRemoteClient, and an IRemoteWBIitem which need to be globally removed
+	 * 
+	 * @param client the source client
+	 * @param item the item need to be removed
+	 * @throws RemoteException
+	 */
+	@Override
+	public void removeItem(IRemoteClient client, IRemoteWBItem item) throws RemoteException {
+		if(this.shapes.remove(item) == true) {
+			for(Entry<String, IRemoteClient> entry : this.clients.entrySet()) {
+				IRemoteClient remoteclient = entry.getValue();
+				remoteclient.alert(client.getClientName() + "removed a item");
+				remoteclient.removeShape(item);
+			}
+		}else {
+			client.alert("item remove failed");
+		}
+		
+	}
 
+	@Override
+	public Set<IRemoteWBItem> getShapes() throws RemoteException {
+		return this.shapes;
+	}
+
+	@Override
+	public void removeItemsByClient(IRemoteClient client) throws RemoteException {
+		for(IRemoteWBItem item : this.shapes) {
+			if(item.getOwner().getClientName().equalsIgnoreCase(client.getClientName())) {
+				this.shapes.remove(item);
+			}
+		}
+		updateGlobalShapes();
+	}
+	
+	@Override
+	public void removeAllItems() throws RemoteException {
+		this.shapes.clear();
+		this.updateAllClients("all items have been cleared");
+		this.updateGlobalShapes();
+	}
+	
+	private void updateGlobalShapes() throws RemoteException {
+		for(Entry<String, IRemoteClient> entry: this.clients.entrySet()) {
+			entry.getValue().updateShapes(this.shapes);
+		}
+	}
 
 }
