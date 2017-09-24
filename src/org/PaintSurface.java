@@ -90,7 +90,7 @@ public class PaintSurface extends JComponent{
 					shapes.add(myShape);
 					xcount = 0;
 					ycount = 0;
-				}else if(shapeType.equals("Free")){
+				}else if(shapeType.equals("Poly")){
 					x[xcount] = startDrag.x;
 					y[ycount] = startDrag.y;
 					xcount++;
@@ -104,16 +104,6 @@ public class PaintSurface extends JComponent{
 					myShape.setColor(color);
 					myShape.setStrokeValue(strokeValue);
 					shapes.add(myShape);
-				}else if(shapeType.equals("Eraser")){
-					//r = erase(startDrag.x, startDrag.y, e.getX(), e.getY());
-					r = eraser(startDrag.x, startDrag.y, e.getX(), e.getY());
-					myShape.setShape(r);
-					myShape.setColor(WhiteBoardClient.frame.getBackground());
-					myShape.setDrawType(4);
-					myShape.setEraserSize(eraserSize);
-					shapes.add(myShape);
-					xcount = 0;
-					ycount = 0;
 				}else if(shapeType.equals("Text")){
 					showTextDialog();
 					MyShape myTextShape = new MyShape(r, 3, color, strokeValue);
@@ -151,6 +141,15 @@ public class PaintSurface extends JComponent{
 				endDrag = new Point(e.getX(), e.getY());
 				if(shapeType.equals("Eraser")){
 					eraserShape = new Rectangle2D.Float(e.getX() - eraserSize/2, e.getY() - eraserSize/2, eraserSize, eraserSize);
+					MyShape myShape = new MyShape(eraserShape, 4, color, strokeValue);
+					myShape.setColor(WhiteBoardClient.frame.getBackground());
+					myShape.setStrokeValue(eraserSize);
+					shapes.add(myShape);
+				}
+				if(shapeType.equals("Free")){
+					Shape r = new Rectangle2D.Float(e.getX() - strokeValue/2, e.getY() - strokeValue/2, strokeValue, strokeValue);
+					MyShape myShape = new MyShape(r, 1, color, strokeValue);
+					shapes.add(myShape);
 				}
 				repaint();
 			}
@@ -197,7 +196,7 @@ public class PaintSurface extends JComponent{
 				g2.drawString(s.getText(), s.getPos().x, s.getPos().y);
 			}else{
 				g2.draw(s.getShape());
-				if(s.getDrawType() == 1){
+				if(s.getDrawType() == 1 || s.getDrawType() == 4){
 					//g2.setPaint(colors[s.getMyColorIndex()]);
 					g2.setPaint(s.getColor());
 					g2.fill(s.getShape());
@@ -228,7 +227,7 @@ public class PaintSurface extends JComponent{
 	        }else if(shapeType.equals("Oval")){
 	        	r = makeOval(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
 	        	g2.draw(r);
-	        }else if(shapeType.equals("Free")){
+	        }else if(shapeType.equals("Poly")){
 	        	r = makeLine(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
 	        	g2.draw(r);
 	        }

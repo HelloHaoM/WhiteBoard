@@ -25,6 +25,11 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 
 import javax.swing.JRadioButton;
 import java.awt.Color;
@@ -38,6 +43,12 @@ import javax.swing.UIManager;
 import org.jvnet.substance.SubstanceLookAndFeel;
 import org.jvnet.substance.theme.SubstanceAquaTheme;
 import org.jvnet.substance.theme.SubstanceEbonyTheme;
+
+import remote.IRemoteClient;
+import remote.IRemoteMath;
+import remote.IRemoteServer;
+import remote.IRemoteWBService;
+import server.RemoteClient;
 
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -64,17 +75,18 @@ public class WhiteBoardClient {
 	private JButton btnOpenChat;
 	private JButton btnPaintSize;
 	private JMenuBar menuBar;
+	private JButton btnPoly;
 
 	/**
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-//		try{
-//			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-//	
-//		}catch(Exception e){
-//			e.printStackTrace();
-//		}
+		try{
+			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+	
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -95,6 +107,38 @@ public class WhiteBoardClient {
 	 */
 	public WhiteBoardClient() {
 		initialize();
+		
+//		try {
+//			IRemoteClient remoteClient;
+//			remoteClient = new RemoteClient();
+//			remoteClient.setClientName("WhiteBoardGuest1");
+//			remoteClient.setClientLevel(RemoteClient.ClientLevel.USER);
+//			
+//			Registry registry = LocateRegistry.getRegistry("localhost");
+//			IRemoteMath remoteMath = (IRemoteMath) registry.lookup("Compute");
+//			IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
+//			
+//			String roomname = "WhiteBoard1";
+//			IRemoteClient manager = new RemoteClient(0, "Hao");
+//			manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
+//			
+//			IRemoteServer remoteServer = remoteWB.createRoom(manager, roomname);
+//			if(remoteServer != null){
+//				remoteServer.setManager(manager);
+//			}
+//			
+//			remoteServer.addClient(manager);
+//			
+//			System.out.println("Room: "+ roomname);
+//			System.out.println("Manager: "+ remoteServer.getManager().getClientName());
+//			
+//			double result = remoteMath.subtract(5, 4);
+//			System.out.println("5 - 4 = " + result);
+//			
+//		} catch (RemoteException | NotBoundException | AlreadyBoundException e1) {
+//			// TODO Auto-generated catch block
+//			e1.printStackTrace();
+//		}
 		
 		btnPaintSize.addMouseListener(new MouseAdapter() {
 			@Override
@@ -135,6 +179,13 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Circle";
+			}
+		});
+		
+		btnPoly.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				PaintSurface.shapeType = "Poly";
 			}
 		});
 		
@@ -211,9 +262,9 @@ public class WhiteBoardClient {
 		frame.getContentPane().add(functionPanel, BorderLayout.WEST);
 		GridBagLayout gbl_functionPanel = new GridBagLayout();
 		gbl_functionPanel.columnWidths = new int[]{0, 0};
-		gbl_functionPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+		gbl_functionPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 		gbl_functionPanel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_functionPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_functionPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		functionPanel.setLayout(gbl_functionPanel);
 		
 		lblDrawType = new JLabel("Draw Type");
@@ -274,25 +325,32 @@ public class WhiteBoardClient {
 		gbc_btnOval.gridy = 7;
 		functionPanel.add(btnOval, gbc_btnOval);
 		
+		btnPoly = new JButton("Poly");
+		GridBagConstraints gbc_btnPoly = new GridBagConstraints();
+		gbc_btnPoly.insets = new Insets(0, 0, 5, 0);
+		gbc_btnPoly.gridx = 0;
+		gbc_btnPoly.gridy = 8;
+		functionPanel.add(btnPoly, gbc_btnPoly);
+		
 		btnFree = new JButton(" Free ");
 		GridBagConstraints gbc_btnFree = new GridBagConstraints();
 		gbc_btnFree.insets = new Insets(0, 0, 5, 0);
 		gbc_btnFree.gridx = 0;
-		gbc_btnFree.gridy = 8;
+		gbc_btnFree.gridy = 9;
 		functionPanel.add(btnFree, gbc_btnFree);
 		
 		btnText = new JButton("Text");
 		GridBagConstraints gbc_btnText = new GridBagConstraints();
 		gbc_btnText.insets = new Insets(0, 0, 5, 0);
 		gbc_btnText.gridx = 0;
-		gbc_btnText.gridy = 9;
+		gbc_btnText.gridy = 10;
 		functionPanel.add(btnText, gbc_btnText);
 		
 		btnErase = new JButton("Erase");
 		GridBagConstraints gbc_btnEarse = new GridBagConstraints();
 		gbc_btnEarse.insets = new Insets(0, 0, 5, 0);
 		gbc_btnEarse.gridx = 0;
-		gbc_btnEarse.gridy = 10;
+		gbc_btnEarse.gridy = 11;
 		functionPanel.add(btnErase, gbc_btnEarse);
 		
 		lblColor = new JLabel("Color");
@@ -300,14 +358,14 @@ public class WhiteBoardClient {
 		GridBagConstraints gbc_lblColor = new GridBagConstraints();
 		gbc_lblColor.insets = new Insets(0, 0, 5, 0);
 		gbc_lblColor.gridx = 0;
-		gbc_lblColor.gridy = 12;
+		gbc_lblColor.gridy = 13;
 		functionPanel.add(lblColor, gbc_lblColor);
 		
 		btnColorChoosing = new JButton("Choose");
 		GridBagConstraints gbc_btnColorChoosing = new GridBagConstraints();
 		gbc_btnColorChoosing.insets = new Insets(0, 0, 5, 0);
 		gbc_btnColorChoosing.gridx = 0;
-		gbc_btnColorChoosing.gridy = 13;
+		gbc_btnColorChoosing.gridy = 14;
 		functionPanel.add(btnColorChoosing, gbc_btnColorChoosing);
 		
 		lblChat = new JLabel("Chat");
@@ -315,7 +373,7 @@ public class WhiteBoardClient {
 		GridBagConstraints gbc_lblChat = new GridBagConstraints();
 		gbc_lblChat.insets = new Insets(0, 0, 5, 0);
 		gbc_lblChat.gridx = 0;
-		gbc_lblChat.gridy = 15;
+		gbc_lblChat.gridy = 16;
 		functionPanel.add(lblChat, gbc_lblChat);
 		
 		btnOpenChat = new JButton("Open Chat");
@@ -326,7 +384,7 @@ public class WhiteBoardClient {
 		GridBagConstraints gbc_btnOpenChat = new GridBagConstraints();
 		gbc_btnOpenChat.insets = new Insets(0, 0, 5, 0);
 		gbc_btnOpenChat.gridx = 0;
-		gbc_btnOpenChat.gridy = 16;
+		gbc_btnOpenChat.gridy = 17;
 		functionPanel.add(btnOpenChat, gbc_btnOpenChat);
 		
 		JMenu fileMenu = new JMenu("File");
