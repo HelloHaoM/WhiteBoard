@@ -7,14 +7,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import remote.IRemoteClient;
-import remote.IRemoteMath;
 import remote.IRemoteServer;
 import remote.IRemoteWBService;
 
 /**
  * This class is for testing the rmi architecture.
- * Creates instances of the RemoteMath (test),
- * RemoteWBService (management) class and
+ * Creates instances of RemoteWBService (management) class and
  * publishes them in the rmiregistry
  * 
  * IRemoteClient do not need to be bind in registry,
@@ -37,13 +35,12 @@ public class RMIServer {
 			//Because RemoteMath extends UnicastRemoteObject, this
 			//is done automatically when the object is initialized.
 			
-			IRemoteMath remoteMath = new RemoteMath();
+
 			IRemoteWBService remoteWB = new RemoteWBService();
 			
             
             //Publish the remote object's stub in the registry
-            Registry registry = LocateRegistry.createRegistry(SERVER_PORT);
-            registry.bind("Compute", remoteMath);            
+            Registry registry = LocateRegistry.createRegistry(SERVER_PORT);          
             registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);            
    
             

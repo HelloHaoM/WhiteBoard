@@ -7,7 +7,6 @@ import java.rmi.registry.Registry;
 import java.util.concurrent.TimeUnit;
 
 import remote.IRemoteClient;
-import remote.IRemoteMath;
 import remote.IRemoteServer;
 import remote.IRemoteWBService;
 import server.RemoteClient;
@@ -30,7 +29,6 @@ public static void main(String[] args) {
 			//Retrieve the stub/proxy for the remote math object from the registry
 			Registry registry = LocateRegistry.getRegistry("localhost");
 			
-			IRemoteMath remoteMath = (IRemoteMath) registry.lookup("Compute");
 			IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 			
 			String roomname ="whiteboard1";
@@ -44,17 +42,14 @@ public static void main(String[] args) {
 			System.out.println("Client No. :" + remoteClient.getClientId());
 			System.out.println("Client UserName: "+remoteClient.getClientName());
 			
-			
-			// do some jobs in start method
-			double result = remoteMath.subtract(5, 4);
-			System.out.println("5 - 4 = " + result);
-			
-			//keep it running for the test 
+			//keep it running for the test
+			int count = 0;
 			while(true) {
 				try {
 					TimeUnit.SECONDS.sleep(30);
-					double result1 = remoteMath.subtract(5, 4);
-					System.out.println("5 - 4 = " + result1);
+					
+					//send some messages to other clients
+					remoteserver.sendMessage(count + " I'm client: "+ remoteClient.getClientName());
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
