@@ -28,7 +28,7 @@ public class MathClient {
 		    
 		    
 		    
-			//Retrieve the stub/proxy for the remote math object from the registry
+			//Retrieve the stub/proxy for the remote object from the registry
 			Registry registry = LocateRegistry.getRegistry("localhost");
 			
 			IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);

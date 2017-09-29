@@ -6,10 +6,15 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.ChatDialog;
+import org.PaintSurface;
+
 import remote.IRemoteClient;
 import remote.IRemoteWBItem;
 /**
  * This is the implement of call back client object
+ * multi-clients version v0.1: 
+ * add the PaintSurface and ChatDialog Object in RemoteClient
  * @author tianzhangh
  *
  */
@@ -20,7 +25,8 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	private int clientId;
 	private String clientName;
 	private ClientLevel lv;
-	
+	private PaintSurface paint;
+	private ChatDialog chat;
 	private Set<IRemoteWBItem> shapes;
 	
 	public enum ClientLevel{
@@ -56,7 +62,22 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		this.lv = lv;
 		shapes = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem, Boolean>());
 	}
-
+	
+	public void setPaint(PaintSurface paint) {
+		this.paint = paint;
+	}
+	
+	public void setChat(ChatDialog chat) {
+		this.chat = chat;
+	}
+	
+	public PaintSurface getPaint() {
+		return this.paint;
+	}
+	
+	public ChatDialog getChat() {
+		return this.chat;
+	}
 	@Override
 	public void alert(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
@@ -99,16 +120,23 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 
 	@Override
 	public void retrieveShape(IRemoteWBItem shape) throws RemoteException {
+		//global item updating test 
+		System.out.println("Global item update:" + shape.getOwner().getClientName());
+		this.paint.addItem(shape);
 		this.shapes.add(shape);
 	}
 
 	@Override
 	public void updateShapes(Set<IRemoteWBItem> shapes) throws RemoteException {
+		this.paint.getShapes().addAll(shapes);
+		this.paint.repaint();
 		this.shapes.addAll(shapes);		
 	}
 
 	@Override
 	public void removeShape(IRemoteWBItem shape) throws RemoteException {
+		this.paint.getShapes().remove(shape);
+		this.paint.repaint();
 		this.shapes.remove(shape);
 	}
 

@@ -42,10 +42,6 @@ public class RMIServer {
             //Publish the remote object's stub in the registry
             Registry registry = LocateRegistry.createRegistry(SERVER_PORT);          
             registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);            
-   
-            
-            
-            System.out.println("Math server ready");
             
             System.out.println("WhiteBoard-Management server ready");
             

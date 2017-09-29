@@ -20,7 +20,7 @@ public class RemoteWBItem extends UnicastRemoteObject implements IRemoteWBItem {
     private Date creationDate;
     private Color colour;
 
-	protected RemoteWBItem(IRemoteClient client, Shape shape, Color colour) throws RemoteException {
+	public RemoteWBItem(IRemoteClient client, Shape shape, Color colour) throws RemoteException {
 		super();
 		this.client = client;
 		this.shape = shape;
