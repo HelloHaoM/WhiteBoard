@@ -18,7 +18,9 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -26,7 +28,21 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import remote.IRemoteClient;
+import remote.IRemoteServer;
+import remote.IRemoteWBItem;
+import server.RemoteWBItem;
+
+/**
+ * multi-clients version v 0.1
+ * @author tianzhangh
+ *
+ */
 public class PaintSurface extends JComponent{
+	private List<IRemoteWBItem> remoteshapes;
+	private IRemoteClient client;
+	private IRemoteServer remoteserver;
+	
 	ArrayList<MyShape> shapes = new ArrayList<MyShape>();
 	
 	Point startDrag, endDrag;
@@ -44,8 +60,15 @@ public class PaintSurface extends JComponent{
 	public Graphics gg;
 	public Shape eraserShape;
 	
-	
-	public PaintSurface(){
+	public List<IRemoteWBItem> getShapes(){
+		return this.remoteshapes;
+	}
+	public PaintSurface(IRemoteClient client, IRemoteServer remoteserver) throws RemoteException{
+		this.client = client;
+		this.remoteserver = remoteserver;
+		remoteshapes = new ArrayList<IRemoteWBItem>();
+		
+		
 		this.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mousePressed(MouseEvent e){
@@ -57,13 +80,26 @@ public class PaintSurface extends JComponent{
 			@Override
 			public void mouseReleased(MouseEvent e){
 				Shape r = null;
+				IRemoteWBItem item;
+				try{
+					
+				item = new RemoteWBItem(client, r, color);
 				MyShape myShape = new MyShape(r, drawType, color, strokeValue);
+				
 				if(shapeType.equals("Line")){
 					r = makeLine(startDrag.x, startDrag.y, e.getX(), e.getY());
 					myShape.setShape(r);
 					myShape.setColor(color);
 					myShape.setStrokeValue(strokeValue);
+				    
 					shapes.add(myShape);
+					
+					//add shape to the IRemoteWBItem list (Need implements more elements based on MyShape.java)
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color);
+					
 					xcount = 0;
 					ycount = 0;
 				}else if(shapeType.equals("Rectangle")){
@@ -116,6 +152,9 @@ public class PaintSurface extends JComponent{
 				startDrag = null;
 				endDrag = null;
 				repaint();
+				} catch(RemoteException e1) {
+					e1.printStackTrace();
+				}
 			}
 			
 			@Override
@@ -142,7 +181,7 @@ public class PaintSurface extends JComponent{
 				if(shapeType.equals("Eraser")){
 					eraserShape = new Rectangle2D.Float(e.getX() - eraserSize/2, e.getY() - eraserSize/2, eraserSize, eraserSize);
 					MyShape myShape = new MyShape(eraserShape, 4, color, strokeValue);
-					myShape.setColor(WhiteBoardClient.frame.getBackground());
+					myShape.setColor(WhiteBoardClient.getFrame().getBackground());
 					myShape.setStrokeValue(eraserSize);
 					shapes.add(myShape);
 				}
@@ -162,10 +201,42 @@ public class PaintSurface extends JComponent{
 				}
 			}
 		});
+		
 	}
 	
+	public void addItem(IRemoteWBItem item) {
+		remoteshapes.add(item);
+		MyShape shape;
+		try {
+			
+			// example here need to unify the two class: MyShape and RemoteWBItem
+			shape = new MyShape(item.getShape(), drawType, color, strokeValue);
+			shapes.add(shape);
+			this.repaint();
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+	}
+	
+	
+	/*public void paintComponent(Graphics g) {
+	        super.paintComponent(g);
+	        Graphics2D g2 = (Graphics2D)g;
+	        for(IRemoteWBItem item : this.remoteshapes){
+	            try {
+	                System.out.printf("Drawing shape by %s at %s%n", item.getOwner(), item.getCreationTime());
+	                g2.setColor(item.getColour());
+	                g2.fill(item.getShape());
+	            }catch(RemoteException e){
+	                e.printStackTrace();
+	            }
+	        }
+	    }*/
+	
 	private void paintBackground(Graphics2D g2){
-		g2.setPaint(Color.LIGHT_GRAY);
+		g2.setPaint(Color.LIGHT_GRAY);;
 	}
 	
 	public void paintEraser(Shape r){
@@ -173,7 +244,6 @@ public class PaintSurface extends JComponent{
 		g2.setColor(Color.BLACK);
 		g2.fill(r);
 	}
-	
 	
 	public void paint(Graphics g){
 		gg = g;
@@ -183,7 +253,7 @@ public class PaintSurface extends JComponent{
 		
 		//g2.setStroke(new BasicStroke(strokeValue));
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.00f));
-		
+
 		for(MyShape s : shapes){
 			//g2.setPaint(colors[s.getMyColorIndex()]);
 			g2.setPaint(s.getColor());
@@ -202,18 +272,11 @@ public class PaintSurface extends JComponent{
 					g2.fill(s.getShape());
 				}
 			}
-			
-		}	
-		
-//		for(Shape s : shapes){
-//			g2.setPaint(colors[0]);
-//			g2.draw(s);
-//			g2.setPaint(colors[colorIndex]);
-//			g2.fill(s);
-//		}
+		}
 		
 		if (startDrag != null && endDrag != null) {
 	        g2.setPaint(Color.LIGHT_GRAY);
+	        g2.setStroke(new BasicStroke(strokeValue));
 	        Shape r = null;
 	        if(shapeType.equals("Line")){
 	        	r = makeLine(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
@@ -236,7 +299,6 @@ public class PaintSurface extends JComponent{
 		if(shapeType.equals("Eraser")){
 			paintEraser(eraserShape);
 		}
-		
 		
 	}
 	

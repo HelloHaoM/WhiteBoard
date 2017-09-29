@@ -47,12 +47,13 @@ import server.RemoteClient;
 import server.RemoteServer;
 /**
  * multi-clients version v0.1
+ * the client application for test
  * @author tianzhangh
  *
  */
-public class WhiteBoardClient {
+public class WhiteBoardClientTest {
 
-	private static JFrame frame;
+	private JFrame frame;
 	private JPanel titlePanel;
 	private JLabel lblWhiteboard;
 	private JPanel functionPanel;
@@ -87,30 +88,33 @@ public class WhiteBoardClient {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
-		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					//Retrieve the stub/proxy for the remote object from the registry
+					IRemoteClient remoteClient = new RemoteClient();
+					remoteClient.setClientName("guest1");
+					remoteClient.setClientLevel(RemoteClient.ClientLevel.USER);
+				    
+				    
+				    
+					//Retrieve the stub/proxy for the remote math object from the registry
 					Registry registry = LocateRegistry.getRegistry("localhost");
 					
 					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 					
 					String roomname ="whiteboard1";
-					IRemoteClient manager = new RemoteClient(0, "tianzhangh");
-					manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
+					IRemoteServer remoteserver = remoteWB.getRoom(remoteClient, roomname);
 					
-					IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
-					if(remoteserver != null) {
-						remoteserver.setManager(manager);
-					}
+					System.out.println("Room: "+ roomname);
+					System.out.println("Manager: "+ remoteserver.getManager().getClientName());
 					
-				    //add manager
-					remoteserver.addClient(manager);
+					//add some clients for test
+					remoteserver.addClient(remoteClient);
+					System.out.println("Client No. :" + remoteClient.getClientId());
+					System.out.println("Client UserName: "+remoteClient.getClientName());
 					
 					
-					WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
+					WhiteBoardClientTest window = new WhiteBoardClientTest(remoteClient, remoteserver);
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -126,7 +130,7 @@ public class WhiteBoardClient {
 	 * Create the application.
 	 * @throws RemoteException 
 	 */
-	public WhiteBoardClient(IRemoteClient client, IRemoteServer server) throws RemoteException {
+	public WhiteBoardClientTest(IRemoteClient client, IRemoteServer server) throws RemoteException {
 		this.client = client;
 		this.server = server;
 		
@@ -228,10 +232,6 @@ public class WhiteBoardClient {
 
 		
 		
-	}
-	
-	public static JFrame getFrame(){
-		return frame;
 	}
 
 	/**

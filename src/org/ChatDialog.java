@@ -7,6 +7,13 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextArea;
 
+import remote.IRemoteClient;
+import remote.IRemoteServer;
+/**
+ * multi-clients version v 0.1
+ * @author tianzhangh
+ *
+ */
 public class ChatDialog {
 	public JDialog jDialog;
 	private JLabel lblInputText;
@@ -16,8 +23,15 @@ public class ChatDialog {
 	private JButton btnSend;
 	private JButton btnClose;
 	
-	public ChatDialog(){
+	private IRemoteServer server;
+	private IRemoteClient client;
+	
+	public ChatDialog(IRemoteClient client, IRemoteServer server){
 		init();
+		
+		this.client = client;
+		this.server = server;
+		
 		jDialog.setModal(true);
 		jDialog.setVisible(true);
 	}

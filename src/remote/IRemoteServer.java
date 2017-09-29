@@ -42,4 +42,5 @@ public interface IRemoteServer extends Remote{
 	public void removeItem(IRemoteClient client, IRemoteWBItem item) throws RemoteException;
 	public void removeAllItems() throws RemoteException;
 	
+	public void sendMessage(String msg) throws RemoteException;
 }

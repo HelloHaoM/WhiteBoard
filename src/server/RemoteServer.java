@@ -326,4 +326,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		}
 	}
 
+	@Override
+	public void sendMessage(String msg) throws RemoteException {
+		this.updateAllClients(msg);		
+	}
+
 }

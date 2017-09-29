@@ -69,7 +69,7 @@ public class MyShape {
 	public void setStrokeValue(int strokeValue) {
 		this.strokeValue = strokeValue;
 	}
-
+	
 	public int getEraserSize() {
 		return eraserSize;
 	}
@@ -78,8 +78,4 @@ public class MyShape {
 		this.eraserSize = eraserSize;
 	}
 	
-	
-	
-	
-
 }
