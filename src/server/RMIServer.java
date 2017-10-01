@@ -30,7 +30,7 @@ public class RMIServer {
 		
 		try {
 			
-			//Export the remote math object to the Java RMI runtime so that it
+			//Export the remote object to the Java RMI runtime so that it
 			//can receive incoming remote calls.
 			//Because RemoteMath extends UnicastRemoteObject, this
 			//is done automatically when the object is initialized.
