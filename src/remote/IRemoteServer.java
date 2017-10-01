@@ -16,6 +16,7 @@ import java.util.Set;
 public interface IRemoteServer extends Remote{
 	
 	public int getListSize() throws RemoteException;
+	public String getRoomName() throws RemoteException;
 	public void addClient(IRemoteClient client) throws RemoteException;
 	public void addClient(String clientname, IRemoteClient client) throws RemoteException;
 	public void removeClient(String clientname) throws RemoteException;
@@ -36,11 +37,12 @@ public interface IRemoteServer extends Remote{
 	public void updateAllClients(String msg) throws RemoteException;
 	
 	//manage and update the room's white board 
-	public void addShape(IRemoteClient client, Shape shape, Color colour) throws RemoteException;
+	public void addShape(IRemoteClient client, Shape shape, Color colour,int Drawtype ,int Stroke) throws RemoteException;
 	public Set<IRemoteWBItem> getShapes() throws RemoteException;
 	public void removeItemsByClient(IRemoteClient client) throws RemoteException;
 	public void removeItem(IRemoteClient client, IRemoteWBItem item) throws RemoteException;
 	public void removeAllItems() throws RemoteException;
 	
+	//for multi-clients chat
 	public void sendMessage(String msg) throws RemoteException;
 }

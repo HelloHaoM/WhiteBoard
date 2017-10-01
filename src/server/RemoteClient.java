@@ -78,6 +78,7 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	public ChatDialog getChat() {
 		return this.chat;
 	}
+	
 	@Override
 	public void alert(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
@@ -139,5 +140,13 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		this.paint.repaint();
 		this.shapes.remove(shape);
 	}
-
+	
+	@Override
+	public void broadCast(String msg) throws RemoteException {
+		// TODO Auto-generated method stub
+		if(this.getChat() != null) {
+			this.getChat().getChatShow().append(msg);
+		}
+	}
+	
 }

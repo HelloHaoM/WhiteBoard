@@ -46,13 +46,13 @@ import remote.IRemoteWBService;
 import server.RemoteClient;
 import server.RemoteServer;
 /**
- * multi-clients version v0.1
+ * multi-clients version v0.2
  * @author tianzhangh
  *
  */
 public class WhiteBoardClient {
 
-	private static JFrame frame;
+	public static JFrame frame;
 	private JPanel titlePanel;
 	private JLabel lblWhiteboard;
 	private JPanel functionPanel;
@@ -74,13 +74,15 @@ public class WhiteBoardClient {
 	private JMenuBar menuBar;
 	private JButton btnPoly;
 	
+	private ChatDialog chatDialog;
+	private PaintSurface paintSurface;
 	private IRemoteClient client;
 	private IRemoteServer server;
 
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		try{
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
 	
@@ -120,7 +122,7 @@ public class WhiteBoardClient {
 		
 		
 		
-	}
+	}*/
 
 	/**
 	 * Create the application.
@@ -243,10 +245,15 @@ public class WhiteBoardClient {
 		//frame.setBounds(100, 100, 450, 300);
 		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setTitle(this.client.getClientName());
 		
 		//set PaintSurface to the RemoteClient
-		PaintSurface paintSurface = new PaintSurface(client, server);
+		paintSurface = new PaintSurface(client, server);
 		((RemoteClient) this.client).setPaint(paintSurface);
+		
+		//set chatDialog to the RemoteClient and the setVisible false
+		chatDialog = new ChatDialog(client, server);
+		((RemoteClient) client).setChat(chatDialog);
 		
 		
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
@@ -254,7 +261,7 @@ public class WhiteBoardClient {
 		titlePanel = new JPanel();
 		frame.getContentPane().add(titlePanel, BorderLayout.NORTH);
 		
-		lblWhiteboard = new JLabel("WhiteBoard");
+		lblWhiteboard = new JLabel(this.server.getRoomName());
 		lblWhiteboard.setFont(new Font("Times New Roman", Font.BOLD, 40));
 		titlePanel.add(lblWhiteboard);	
 		
@@ -418,8 +425,7 @@ public class WhiteBoardClient {
 	}
 	
 	private void showChatWindow(){
-		ChatDialog chatDialog = new ChatDialog(client, server);
-		((RemoteClient) client).setChat(chatDialog);
+		chatDialog.jDialog.setVisible(true);
 	}
 	
 

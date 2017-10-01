@@ -1,6 +1,6 @@
 package client;
-
 import java.awt.EventQueue;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -23,10 +23,8 @@ import server.RemoteClient;
  * @author tianzhangh
  *
  */
-public class GuestClient {
-	/**
-	 * Launch the application.
-	 */
+public class ManagerClient {
+
 	public static void main(String[] args) {
 		try{
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -34,33 +32,30 @@ public class GuestClient {
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					IRemoteClient remoteClient = new RemoteClient();
-					remoteClient.setClientName("client455");
-					remoteClient.setClientLevel(RemoteClient.ClientLevel.USER);
-				    
-				    
-				    
 					//Retrieve the stub/proxy for the remote object from the registry
 					Registry registry = LocateRegistry.getRegistry("localhost");
 					
 					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 					
 					String roomname ="whiteboard1";
-					IRemoteServer remoteserver = remoteWB.getRoom(remoteClient, roomname);
+					IRemoteClient manager = new RemoteClient(0, "tianzhangh");
+					manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
 					
-					System.out.println("Room: "+ roomname);
-					System.out.println("Manager: "+ remoteserver.getManager().getClientName());
+					IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
+					if(remoteserver != null) {
+						remoteserver.setManager(manager);
+					}
 					
-					//add some clients for test
-					remoteserver.addClient(remoteClient);
-					System.out.println("Client No. :" + remoteClient.getClientId());
-					System.out.println("Client UserName: "+remoteClient.getClientName());
+				    //add manager
+					remoteserver.addClient(manager);
 					
 					
-					WhiteBoardClient window = new WhiteBoardClient(remoteClient, remoteserver);
+					WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -71,4 +66,5 @@ public class GuestClient {
 		
 		
 	}
+	
 }

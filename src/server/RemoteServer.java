@@ -50,6 +50,11 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 	}
 	
 	@Override
+	public String getRoomName() throws RemoteException {
+		return this.roomName;
+	}
+	
+	@Override
 	public boolean setManager(IRemoteClient manager) throws RemoteException{
 		if(manager.getClietnLevel() == RemoteClient.ClientLevel.MANAGER) {
 			roomManager = manager;
@@ -151,7 +156,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 	@Override
 	public void updateAllClients(String msg) throws RemoteException {
 		Map<String, IRemoteClient> clients = this.getClients();
-		for( Map.Entry<String, IRemoteClient> entry: clients.entrySet() ) {
+		for( Entry<String, IRemoteClient> entry: clients.entrySet() ) {
 			entry.getValue().alert(msg);
 		}
 	}
@@ -267,8 +272,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
      * @throws RemoteException
      */
 	@Override
-	public void addShape(IRemoteClient client, Shape shape, Color colour) throws RemoteException {
-		IRemoteWBItem itemShape = new RemoteWBItem(client, shape, colour);
+	public void addShape(IRemoteClient client, Shape shape, Color colour, int DrawType , int Stroke) throws RemoteException {
+		IRemoteWBItem itemShape = new RemoteWBItem(client, shape, colour , DrawType, Stroke);
 		this.shapes.add(itemShape);
 		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
 		for(Entry<String, IRemoteClient> entry : clientset) {
@@ -325,10 +330,28 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 			entry.getValue().updateShapes(this.shapes);
 		}
 	}
-
+	
+	/**
+	 * for multi-clients chat
+	 * @param msg
+	 * @author tianzhangh
+	 */
 	@Override
 	public void sendMessage(String msg) throws RemoteException {
-		this.updateAllClients(msg);		
+		//System.out.println(msg);
+		this.broadMessage(msg);
+	}
+	
+	/**
+	 * for multi-clients chat in the ChatDialog
+	 * @param msg
+	 * @throws RemoteException
+	 */
+	public void broadMessage(String msg) throws RemoteException {
+		Map<String, IRemoteClient> clients = this.getClients();
+		for( Entry<String, IRemoteClient> entry: clients.entrySet() ) {
+			entry.getValue().broadCast(msg);
+		}
 	}
 
 }

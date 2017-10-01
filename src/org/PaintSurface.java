@@ -14,6 +14,8 @@ import java.awt.Shape;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
 import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
@@ -21,6 +23,7 @@ import java.awt.geom.Rectangle2D;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -43,7 +46,7 @@ public class PaintSurface extends JComponent{
 	private IRemoteClient client;
 	private IRemoteServer remoteserver;
 	
-	ArrayList<MyShape> shapes = new ArrayList<MyShape>();
+	ArrayList<IRemoteWBItem> shapes = new ArrayList<IRemoteWBItem>();
 	
 	Point startDrag, endDrag;
 	int[] x = new int[50];
@@ -57,6 +60,8 @@ public class PaintSurface extends JComponent{
 	public static int drawType = 0;
 	public static String text = "";
 	
+	
+
 	public Graphics gg;
 	public Shape eraserShape;
 	
@@ -67,6 +72,10 @@ public class PaintSurface extends JComponent{
 		this.client = client;
 		this.remoteserver = remoteserver;
 		remoteshapes = new ArrayList<IRemoteWBItem>();
+		 for (IRemoteWBItem remoteshape : remoteserver.getShapes()   ) {
+			 	this.addItem(remoteshape);
+				
+	        }
 		
 		
 		this.addMouseListener(new MouseAdapter() {
@@ -83,47 +92,51 @@ public class PaintSurface extends JComponent{
 				IRemoteWBItem item;
 				try{
 					
-				item = new RemoteWBItem(client, r, color);
-				MyShape myShape = new MyShape(r, drawType, color, strokeValue);
+				item = new RemoteWBItem(client, r, color, drawType, strokeValue);
+			
 				
 				if(shapeType.equals("Line")){
 					r = makeLine(startDrag.x, startDrag.y, e.getX(), e.getY());
-					myShape.setShape(r);
-					myShape.setColor(color);
-					myShape.setStrokeValue(strokeValue);
-				    
-					shapes.add(myShape);
+					
 					
 					//add shape to the IRemoteWBItem list (Need implements more elements based on MyShape.java)
 					remoteshapes.add(item);
 					
 					// add new shape to the rmi server
-					remoteserver.addShape(client, r, color);
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 					
 					xcount = 0;
 					ycount = 0;
 				}else if(shapeType.equals("Rectangle")){
 					r = makeRectangle(startDrag.x, startDrag.y, e.getX(), e.getY());
-					myShape.setShape(r);
-					myShape.setColor(color);
-					myShape.setStrokeValue(strokeValue);
-					shapes.add(myShape);
+					
+					
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
+					
 					xcount = 0;
 					ycount = 0;
 				}else if(shapeType.equals("Circle")){
 					r = makeCircle(startDrag.x, startDrag.y, e.getX(), e.getY());
-					myShape.setShape(r);
-					myShape.setColor(color);
-					myShape.setStrokeValue(strokeValue);
-					shapes.add(myShape);
+					
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 					xcount = 0;
 					ycount = 0;
 				}else if(shapeType.equals("Oval")){
 					r = makeOval(startDrag.x, startDrag.y, e.getX(), e.getY());
-					myShape.setShape(r);
-					myShape.setColor(color);
-					myShape.setStrokeValue(strokeValue);
-					shapes.add(myShape);
+					
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 					xcount = 0;
 					ycount = 0;
 				}else if(shapeType.equals("Poly")){
@@ -136,18 +149,28 @@ public class PaintSurface extends JComponent{
 					xcount++;
 					ycount++;
 					r = makeLine(startDrag.x, startDrag.y, e.getX(), e.getY());
-					myShape.setShape(r);
-					myShape.setColor(color);
-					myShape.setStrokeValue(strokeValue);
-					shapes.add(myShape);
+					
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 				}else if(shapeType.equals("Text")){
-					showTextDialog();
-					MyShape myTextShape = new MyShape(r, 3, color, strokeValue);
-					myTextShape.setPos(startDrag);
-					myTextShape.setText(text);
+					
+					TextDialog t1 = new TextDialog();
+					r = makeText(text,startDrag.x, startDrag.y, e.getX(), e.getY());
+					System.out.println("we are here calling td obj");
+					IRemoteWBItem myTextShape = new RemoteWBItem(client,r, color, 3, strokeValue);
+					
+					System.out.println(text);
 					shapes.add(myTextShape);
 					xcount = 0;
 					ycount = 0;
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 				}
 				startDrag = null;
 				endDrag = null;
@@ -159,38 +182,66 @@ public class PaintSurface extends JComponent{
 			
 			@Override
 			public void mouseClicked(MouseEvent e){
+				IRemoteWBItem item;
+				
+				try {
 				if(e.getButton() == MouseEvent.BUTTON3){
+					
 					Shape r = makeGeneralPath(x, y, xcount);
-					MyShape myShape = new MyShape(r, drawType, color, strokeValue);
-					myShape.setColor(color);
-					myShape.setStrokeValue(strokeValue);
-					shapes.add(myShape);
+					
+					item = new RemoteWBItem(client, r, color, drawType, strokeValue);
+					
+					
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 					xcount = 0;
 					ycount = 0;
 				}
-				repaint();
+				repaint();} 
+				
+				catch (RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 			
 			
 		});
 		
 		this.addMouseMotionListener(new MouseMotionAdapter() {
-			@Override
+			IRemoteWBItem item;
+			
 			public void mouseDragged(MouseEvent e){
 				endDrag = new Point(e.getX(), e.getY());
+				try {
+					
 				if(shapeType.equals("Eraser")){
 					eraserShape = new Rectangle2D.Float(e.getX() - eraserSize/2, e.getY() - eraserSize/2, eraserSize, eraserSize);
-					MyShape myShape = new MyShape(eraserShape, 4, color, strokeValue);
-					myShape.setColor(WhiteBoardClient.getFrame().getBackground());
-					myShape.setStrokeValue(eraserSize);
-					shapes.add(myShape);
+					 item = new RemoteWBItem(client,eraserShape, WhiteBoardClient.getFrame().getBackground(), 4, eraserSize);
+					
+					//add shape to the IRemoteWBItem list
+					remoteshapes.add(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client,eraserShape, color, drawType, strokeValue);
+					
 				}
 				if(shapeType.equals("Free")){
 					Shape r = new Rectangle2D.Float(e.getX() - strokeValue/2, e.getY() - strokeValue/2, strokeValue, strokeValue);
-					MyShape myShape = new MyShape(r, 1, color, strokeValue);
-					shapes.add(myShape);
+					item = new RemoteWBItem(client, r, color, drawType, strokeValue);
+					
+					//add shape to the IRemoteWBItem list
+					addItem(item);
+					
+					// add new shape to the rmi server
+					remoteserver.addShape(client, r, color, drawType, strokeValue);
 				}
-				repaint();
+				repaint();}
+				catch(Exception ex) {ex.printStackTrace();}
+				
 			}
 			
 			@Override
@@ -203,15 +254,19 @@ public class PaintSurface extends JComponent{
 		});
 		
 	}
-	
+
+	protected Shape makeText(String text2, int x2, int y2, int x3, int y3) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	public void addItem(IRemoteWBItem item) {
 		remoteshapes.add(item);
-		MyShape shape;
+		
 		try {
 			
 			// example here need to unify the two class: MyShape and RemoteWBItem
-			shape = new MyShape(item.getShape(), drawType, color, strokeValue);
-			shapes.add(shape);
+		
+			shapes.add(new RemoteWBItem(client,item.getShape(), item.getColour(), item.getDrawType(), item.getStrokeValue()));
 			this.repaint();
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
@@ -220,28 +275,37 @@ public class PaintSurface extends JComponent{
 		
 	}
 	
+		
+	
+	
 	
 	/*public void paintComponent(Graphics g) {
-	        super.paintComponent(g);
+	       try {
+			super.paintComponent(g);
+	        gg = g;
 	        Graphics2D g2 = (Graphics2D)g;
+	        System.out.println("Inside painter");
 	        for(IRemoteWBItem item : this.remoteshapes){
-	            try {
+	            
 	                System.out.printf("Drawing shape by %s at %s%n", item.getOwner(), item.getCreationTime());
 	                g2.setColor(item.getColour());
 	                g2.fill(item.getShape());
-	            }catch(RemoteException e){
-	                e.printStackTrace();
-	            }
+	                g2.draw(item.getShape());
+	            
 	        }
+	       }
+	       catch(RemoteException rem) {
+	    	   rem.printStackTrace();
+	       }
 	    }*/
 	
 	private void paintBackground(Graphics2D g2){
-		g2.setPaint(Color.LIGHT_GRAY);;
+		g2.setPaint(Color.LIGHT_GRAY);
 	}
 	
 	public void paintEraser(Shape r){
 		Graphics2D g2 = (Graphics2D) gg;
-		g2.setColor(Color.BLACK);
+		g2.setColor(Color.LIGHT_GRAY);
 		g2.fill(r);
 	}
 	
@@ -253,10 +317,10 @@ public class PaintSurface extends JComponent{
 		
 		//g2.setStroke(new BasicStroke(strokeValue));
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.00f));
-
-		for(MyShape s : shapes){
+		try {
+		for(IRemoteWBItem s : shapes){
 			//g2.setPaint(colors[s.getMyColorIndex()]);
-			g2.setPaint(s.getColor());
+			g2.setPaint(s.getColour());
 			if(s.getDrawType() == 4){
 				g2.setStroke(new BasicStroke(s.getEraserSize()));
 			}else{
@@ -268,11 +332,12 @@ public class PaintSurface extends JComponent{
 				g2.draw(s.getShape());
 				if(s.getDrawType() == 1 || s.getDrawType() == 4){
 					//g2.setPaint(colors[s.getMyColorIndex()]);
-					g2.setPaint(s.getColor());
+					g2.setPaint(s.getColour());
 					g2.fill(s.getShape());
 				}
 			}
-		}
+		}}
+		catch(RemoteException re) { re.printStackTrace();}
 		
 		if (startDrag != null && endDrag != null) {
 	        g2.setPaint(Color.LIGHT_GRAY);
@@ -293,15 +358,31 @@ public class PaintSurface extends JComponent{
 	        }else if(shapeType.equals("Poly")){
 	        	r = makeLine(startDrag.x, startDrag.y, endDrag.x, endDrag.y);
 	        	g2.draw(r);
-	        }
-	        
+	        }else if(shapeType.equalsIgnoreCase("Text")) {
+				r =paintText(text,startDrag.x, startDrag.y, endDrag.x, endDrag.y);
+				g2.draw(r);
+			}
+	        	
 	      }
 		if(shapeType.equals("Eraser")){
 			paintEraser(eraserShape);
 		}
-		
+
 	}
 	
+	private Shape paintText(String text2,int x1, int y1, int x2, int y2) {
+		System.out.println("Painting text");
+		Shape r =null;
+		Font f = getFont();
+	    // Optionally change font characteristics here
+	    // f = f.deriveFont(Font.BOLD, 70);
+
+	    FontRenderContext frc = getFontMetrics(f).getFontRenderContext();
+	    GlyphVector v = f.createGlyphVector(frc, text2);
+	    r= v.getOutline();
+		return r;
+		
+	}
 	private Rectangle2D.Float makeRectangle(int x1, int y1, int x2, int y2){
 		return new Rectangle2D.Float(Math.min(x1, x2), Math.min(y1, y2), Math.abs(x1 - x2), Math.abs(y1 - y2));
 	}
@@ -343,5 +424,6 @@ public class PaintSurface extends JComponent{
 	
 	private void showTextDialog(){
 		TextDialog textDialog = new TextDialog();
+		
 	}
 }
