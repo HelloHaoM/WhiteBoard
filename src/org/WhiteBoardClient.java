@@ -114,6 +114,8 @@ public class WhiteBoardClient {
 	private JMenuItem openMenuItem;
 	private JMenuItem saveMenuItem;
 	private JMenuItem saveAsMenuItem;
+	
+	private boolean isFill;
 
 	/**
 	 * Launch the application.
@@ -176,8 +178,10 @@ public class WhiteBoardClient {
 				JRadioButton choose = (JRadioButton) e.getSource();
 				if (choose.isSelected()) {
 					PaintSurface.drawType = 1;
+					isFill = true;
 				} else {
 					PaintSurface.drawType = 0;
+					isFill = false;
 				}
 
 			}
@@ -187,12 +191,22 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Line";
+				if(isFill){
+					PaintSurface.drawType = 1;
+				}else{
+					PaintSurface.drawType = 0;
+				}
 			}
 		});
 		btnRectangle.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Rectangle";
+				if(isFill){
+					PaintSurface.drawType = 1;
+				}else{
+					PaintSurface.drawType = 0;
+				}
 			}
 		});
 
@@ -200,6 +214,11 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Circle";
+				if(isFill){
+					PaintSurface.drawType = 1;
+				}else{
+					PaintSurface.drawType = 0;
+				}
 			}
 		});
 
@@ -207,6 +226,11 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Poly";
+				if(isFill){
+					PaintSurface.drawType = 1;
+				}else{
+					PaintSurface.drawType = 0;
+				}
 			}
 		});
 
@@ -214,6 +238,19 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Free";
+				PaintSurface.drawType = 0;
+			}
+		});
+		
+		btnOval.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				PaintSurface.shapeType = "Oval";
+				if(isFill){
+					PaintSurface.drawType = 1;
+				}else{
+					PaintSurface.drawType = 0;
+				}
 			}
 		});
 
@@ -225,17 +262,11 @@ public class WhiteBoardClient {
 			}
 		});
 
-		btnOval.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				PaintSurface.shapeType = "Oval";
-			}
-		});
-
 		btnText.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Text";
+				showTextDir();
 			}
 		});
 
@@ -482,6 +513,10 @@ public class WhiteBoardClient {
 		PaintSizeDialog paintSizeDialog = new PaintSizeDialog();
 	}
 
+	private void showTextDir(){
+		TextDirDialog textDirDialog = new TextDirDialog();
+	}
+	
 	private void showEraserSize() {
 		EraserSizeDialog eraserSizeDialog = new EraserSizeDialog();
 	}

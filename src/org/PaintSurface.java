@@ -175,9 +175,9 @@ public class PaintSurface extends JComponent{
 						xcount = 0;
 						ycount = 0;
 						
-						item = new RemoteWBItem(client, r, color, drawType, strokeValue);
+						//item = new RemoteWBItem(client, r, color, drawType, strokeValue);
 						//add shape to the IRemoteWBItem list
-						shapes.add(item);
+						//shapes.add(item);
 						
 						// add new shape to the rmi server
 						remoteserver.addText(client, r, text, color, drawType, strokeValue, startDrag);
