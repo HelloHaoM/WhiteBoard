@@ -2,7 +2,9 @@ package org;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.FileDialog;
 import java.awt.Font;
+import java.awt.Graphics;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -10,11 +12,16 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JColorChooser;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
@@ -27,12 +34,21 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 
 import javax.swing.JRadioButton;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 
 import javax.swing.JScrollBar;
@@ -40,14 +56,18 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.text.html.HTMLDocument.Iterator;
 
 import remote.IRemoteClient;
 import remote.IRemoteServer;
 import remote.IRemoteWBService;
 import server.RemoteClient;
 import server.RemoteServer;
+
 /**
  * multi-clients version v0.2
+ * 
  * @author tianzhangh
  *
  */
@@ -77,89 +97,92 @@ public class WhiteBoardClient {
 	private JScrollPane scrollPane;
 	private static JTextArea textArea;
 	private JLabel lblOptions;
-	
+
 	private ChatDialog chatDialog;
 	private PaintSurface paintSurface;
 	private IRemoteClient client;
 	private IRemoteServer server;
 
+	private File curFile;
+	private String fileName;
+	private String filePath;
+	private boolean isOpenFile = false;
+	private JLabel imgLabel;
+
+	private JMenu fileMenu;
+	private JMenuItem newMenuItem;
+	private JMenuItem openMenuItem;
+	private JMenuItem saveMenuItem;
+	private JMenuItem saveAsMenuItem;
+
 	/**
 	 * Launch the application.
 	 */
-	/*public static void main(String[] args) {
-		try{
-			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-	
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		
-		
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					//Retrieve the stub/proxy for the remote object from the registry
-					Registry registry = LocateRegistry.getRegistry("localhost");
-					
-					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
-					
-					String roomname ="whiteboard1";
-					IRemoteClient manager = new RemoteClient(0, "tianzhangh");
-					manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
-					
-					IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
-					if(remoteserver != null) {
-						remoteserver.setManager(manager);
-					}
-					
-				    //add manager
-					remoteserver.addClient(manager);
-					
-					
-					WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		
-		
-		
-	}*/
+	/*
+	 * public static void main(String[] args) { try{
+	 * UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
+	 * 
+	 * }catch(Exception e){ e.printStackTrace(); }
+	 * 
+	 * 
+	 * EventQueue.invokeLater(new Runnable() { public void run() { try { //Retrieve
+	 * the stub/proxy for the remote object from the registry Registry registry =
+	 * LocateRegistry.getRegistry("localhost");
+	 * 
+	 * IRemoteWBService remoteWB = (IRemoteWBService)
+	 * registry.lookup(IRemoteWBService.LOOKUP_NAME);
+	 * 
+	 * String roomname ="whiteboard1"; IRemoteClient manager = new RemoteClient(0,
+	 * "tianzhangh"); manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
+	 * 
+	 * IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
+	 * if(remoteserver != null) { remoteserver.setManager(manager); }
+	 * 
+	 * //add manager remoteserver.addClient(manager);
+	 * 
+	 * 
+	 * WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
+	 * window.frame.setVisible(true); } catch (Exception e) { e.printStackTrace(); }
+	 * } });
+	 * 
+	 * 
+	 * 
+	 * }
+	 */
 
 	/**
 	 * Create the application.
-	 * @throws RemoteException 
+	 * 
+	 * @throws RemoteException
 	 */
 	public WhiteBoardClient(IRemoteClient client, IRemoteServer server) throws RemoteException {
 		this.client = client;
 		this.server = server;
-		
+
 		initialize();
-		
+
 		btnPaintSize.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				showPaintSize();
 			}
 		});
-		
+
 		rdbtnFill.addItemListener(new ItemListener() {
-			
+
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				// TODO Auto-generated method stub
 				JRadioButton choose = (JRadioButton) e.getSource();
-				if(choose.isSelected()){
+				if (choose.isSelected()) {
 					PaintSurface.drawType = 1;
-				}else{
+				} else {
 					PaintSurface.drawType = 0;
 				}
-				
+
 			}
 		});
-		
+
 		btnLine.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -172,29 +195,28 @@ public class WhiteBoardClient {
 				PaintSurface.shapeType = "Rectangle";
 			}
 		});
-		
+
 		btnCircle.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Circle";
 			}
 		});
-		
+
 		btnPoly.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Poly";
 			}
 		});
-		
+
 		btnFree.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Free";
 			}
 		});
-		
-		
+
 		btnErase.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -202,30 +224,28 @@ public class WhiteBoardClient {
 				showEraserSize();
 			}
 		});
-		
+
 		btnOval.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Oval";
 			}
 		});
-		
+
 		btnText.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Text";
-				showTextDir();
 			}
 		});
-		
-		
+
 		btnColorChoosing.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.color = JColorChooser.showDialog(null, "Color Choosing", PaintSurface.color);
 			}
 		});
-		
+
 		btnOpenChat.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -233,15 +253,13 @@ public class WhiteBoardClient {
 			}
 		});
 
-		
-		
 	}
-	
-	public static JFrame getFrame(){
+
+	public static JFrame getFrame() {
 		return frame;
 	}
-	
-	public void showOptions(String msg){
+
+	public void showOptions(String msg) {
 		System.out.println("Show");
 		String showMsg = msg + "\n\n";
 		textArea.append(showMsg);
@@ -250,42 +268,43 @@ public class WhiteBoardClient {
 
 	/**
 	 * Initialize the contents of the frame.
-	 * @throws RemoteException 
+	 * 
+	 * @throws RemoteException
 	 */
 	private void initialize() throws RemoteException {
 		frame = new JFrame();
-		//frame.setBounds(100, 100, 450, 300);
+		// frame.setBounds(100, 100, 450, 300);
 		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setTitle(this.client.getClientName());
-		
-		//set PaintSurface to the RemoteClient
+		//frame.setTitle(this.client.getClientName());
+
+		// set PaintSurface to the RemoteClient
 		paintSurface = new PaintSurface(client, server);
 		((RemoteClient) this.client).setPaint(paintSurface);
-		
-		//set chatDialog to the RemoteClient and the setVisible false
+
+		// set chatDialog to the RemoteClient and the setVisible false
 		chatDialog = new ChatDialog(client, server);
 		((RemoteClient) client).setChat(chatDialog);
-		
-		
+
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
-		
+
 		titlePanel = new JPanel();
 		frame.getContentPane().add(titlePanel, BorderLayout.NORTH);
-		
+
 		lblWhiteboard = new JLabel(this.server.getRoomName());
 		lblWhiteboard.setFont(new Font("Times New Roman", Font.BOLD, 40));
-		titlePanel.add(lblWhiteboard);	
-		
+		titlePanel.add(lblWhiteboard);
+
 		functionPanel = new JPanel();
 		frame.getContentPane().add(functionPanel, BorderLayout.WEST);
 		GridBagLayout gbl_functionPanel = new GridBagLayout();
-		gbl_functionPanel.columnWidths = new int[]{0, 0};
-		gbl_functionPanel.rowHeights = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-		gbl_functionPanel.columnWeights = new double[]{0.0, Double.MIN_VALUE};
-		gbl_functionPanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_functionPanel.columnWidths = new int[] { 0, 0 };
+		gbl_functionPanel.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+		gbl_functionPanel.columnWeights = new double[] { 0.0, Double.MIN_VALUE };
+		gbl_functionPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+				0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE };
 		functionPanel.setLayout(gbl_functionPanel);
-		
+
 		lblDrawType = new JLabel("Draw Type");
 		lblDrawType.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		GridBagConstraints gbc_lblDrawType = new GridBagConstraints();
@@ -293,21 +312,21 @@ public class WhiteBoardClient {
 		gbc_lblDrawType.gridx = 0;
 		gbc_lblDrawType.gridy = 0;
 		functionPanel.add(lblDrawType, gbc_lblDrawType);
-		
+
 		btnPaintSize = new JButton("Paint Size");
 		GridBagConstraints gbc_btnPaintSize = new GridBagConstraints();
 		gbc_btnPaintSize.insets = new Insets(0, 0, 5, 0);
 		gbc_btnPaintSize.gridx = 0;
 		gbc_btnPaintSize.gridy = 1;
 		functionPanel.add(btnPaintSize, gbc_btnPaintSize);
-		
+
 		rdbtnFill = new JRadioButton("Fill");
 		GridBagConstraints gbc_rdbtnFill = new GridBagConstraints();
 		gbc_rdbtnFill.insets = new Insets(0, 0, 5, 0);
 		gbc_rdbtnFill.gridx = 0;
 		gbc_rdbtnFill.gridy = 2;
 		functionPanel.add(rdbtnFill, gbc_rdbtnFill);
-		
+
 		lblShapeType = new JLabel(" Shape Type ");
 		lblShapeType.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		GridBagConstraints gbc_lblShapeType = new GridBagConstraints();
@@ -315,63 +334,63 @@ public class WhiteBoardClient {
 		gbc_lblShapeType.gridx = 0;
 		gbc_lblShapeType.gridy = 3;
 		functionPanel.add(lblShapeType, gbc_lblShapeType);
-		
+
 		btnLine = new JButton(" Line ");
 		GridBagConstraints gbc_btnLine = new GridBagConstraints();
 		gbc_btnLine.insets = new Insets(0, 0, 5, 0);
 		gbc_btnLine.gridx = 0;
 		gbc_btnLine.gridy = 4;
 		functionPanel.add(btnLine, gbc_btnLine);
-		
+
 		btnRectangle = new JButton(" Rect ");
 		GridBagConstraints gbc_btnRectangle = new GridBagConstraints();
 		gbc_btnRectangle.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRectangle.gridx = 0;
 		gbc_btnRectangle.gridy = 5;
 		functionPanel.add(btnRectangle, gbc_btnRectangle);
-		
+
 		btnCircle = new JButton("Circle");
 		GridBagConstraints gbc_btnCircle = new GridBagConstraints();
 		gbc_btnCircle.insets = new Insets(0, 0, 5, 0);
 		gbc_btnCircle.gridx = 0;
 		gbc_btnCircle.gridy = 6;
 		functionPanel.add(btnCircle, gbc_btnCircle);
-		
+
 		btnOval = new JButton(" Oval ");
 		GridBagConstraints gbc_btnOval = new GridBagConstraints();
 		gbc_btnOval.insets = new Insets(0, 0, 5, 0);
 		gbc_btnOval.gridx = 0;
 		gbc_btnOval.gridy = 7;
 		functionPanel.add(btnOval, gbc_btnOval);
-		
+
 		btnPoly = new JButton("Poly");
 		GridBagConstraints gbc_btnPoly = new GridBagConstraints();
 		gbc_btnPoly.insets = new Insets(0, 0, 5, 0);
 		gbc_btnPoly.gridx = 0;
 		gbc_btnPoly.gridy = 8;
 		functionPanel.add(btnPoly, gbc_btnPoly);
-		
+
 		btnFree = new JButton(" Free ");
 		GridBagConstraints gbc_btnFree = new GridBagConstraints();
 		gbc_btnFree.insets = new Insets(0, 0, 5, 0);
 		gbc_btnFree.gridx = 0;
 		gbc_btnFree.gridy = 9;
 		functionPanel.add(btnFree, gbc_btnFree);
-		
+
 		btnText = new JButton("Text");
 		GridBagConstraints gbc_btnText = new GridBagConstraints();
 		gbc_btnText.insets = new Insets(0, 0, 5, 0);
 		gbc_btnText.gridx = 0;
 		gbc_btnText.gridy = 10;
 		functionPanel.add(btnText, gbc_btnText);
-		
+
 		btnErase = new JButton("Erase");
 		GridBagConstraints gbc_btnEarse = new GridBagConstraints();
 		gbc_btnEarse.insets = new Insets(0, 0, 5, 0);
 		gbc_btnEarse.gridx = 0;
 		gbc_btnEarse.gridy = 11;
 		functionPanel.add(btnErase, gbc_btnEarse);
-		
+
 		lblColor = new JLabel("Color");
 		lblColor.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		GridBagConstraints gbc_lblColor = new GridBagConstraints();
@@ -379,22 +398,22 @@ public class WhiteBoardClient {
 		gbc_lblColor.gridx = 0;
 		gbc_lblColor.gridy = 13;
 		functionPanel.add(lblColor, gbc_lblColor);
-		
+
 		btnColorChoosing = new JButton("Choose");
 		GridBagConstraints gbc_btnColorChoosing = new GridBagConstraints();
 		gbc_btnColorChoosing.insets = new Insets(0, 0, 5, 0);
 		gbc_btnColorChoosing.gridx = 0;
 		gbc_btnColorChoosing.gridy = 14;
 		functionPanel.add(btnColorChoosing, gbc_btnColorChoosing);
-		
+
 		lblChat = new JLabel("Chat");
-		lblChat.setFont(new Font("Times New Roman", Font.BOLD,20));
+		lblChat.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		GridBagConstraints gbc_lblChat = new GridBagConstraints();
 		gbc_lblChat.insets = new Insets(0, 0, 5, 0);
 		gbc_lblChat.gridx = 0;
 		gbc_lblChat.gridy = 16;
 		functionPanel.add(lblChat, gbc_lblChat);
-		
+
 		btnOpenChat = new JButton("Open Chat");
 		btnOpenChat.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -405,15 +424,15 @@ public class WhiteBoardClient {
 		gbc_btnOpenChat.gridx = 0;
 		gbc_btnOpenChat.gridy = 17;
 		functionPanel.add(btnOpenChat, gbc_btnOpenChat);
-		
+
 		lblOptions = new JLabel("Options");
-		lblOptions.setFont(new Font("Times New Roman", Font.BOLD,20));
+		lblOptions.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		GridBagConstraints gbc_lblOptions = new GridBagConstraints();
 		gbc_lblOptions.insets = new Insets(0, 0, 5, 0);
 		gbc_lblOptions.gridx = 0;
 		gbc_lblOptions.gridy = 18;
 		functionPanel.add(lblOptions, gbc_lblOptions);
-		
+
 		scrollPane = new JScrollPane();
 		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
@@ -425,52 +444,232 @@ public class WhiteBoardClient {
 		gbc_scrollPane.gridx = 0;
 		gbc_scrollPane.gridy = 19;
 		functionPanel.add(scrollPane, gbc_scrollPane);
-		
+
 		textArea = new JTextArea();
-		textArea.setBackground(new Color(214,217,223));
+		textArea.setBackground(new Color(214, 217, 223));
 		textArea.setBorder(null);
 		textArea.setEditable(false);
 		textArea.setLineWrap(true);
-		textArea.setFont(new Font("Times New Roman", Font.BOLD,10));
+		textArea.setFont(new Font("Times New Roman", Font.BOLD, 10));
 		scrollPane.setViewportView(textArea);
-		
-		JMenu fileMenu = new JMenu("File");
-		JMenuItem newMenuItem = new JMenuItem("New");
+
+		fileMenu = new JMenu("File");
+		newMenuItem = new JMenuItem("New");
 		newMenuItem.setActionCommand("New");
-		JMenuItem openMenuItem = new JMenuItem("Open");
+		openMenuItem = new JMenuItem("Open");
 		openMenuItem.setActionCommand("Open");
-		JMenuItem saveMenuItem = new JMenuItem("Save");
+		saveMenuItem = new JMenuItem("Save");
 		saveMenuItem.setActionCommand("Save");
-		JMenuItem saveAsMenuItem = new JMenuItem("Save As");
+		saveAsMenuItem = new JMenuItem("Save As");
 		saveAsMenuItem.setActionCommand("Save As");
-		
+
 		fileMenu.add(newMenuItem);
 		fileMenu.add(openMenuItem);
 		fileMenu.add(saveMenuItem);
 		fileMenu.add(saveAsMenuItem);
-		
+
 		menuBar = new JMenuBar();
 		menuBar.add(fileMenu);
-		
+
 		frame.setJMenuBar(menuBar);
-		
+
+		// listen file operations
+		setUpEventListener();
+
 	}
-	
-	private void showPaintSize(){
+
+	private void showPaintSize() {
 		PaintSizeDialog paintSizeDialog = new PaintSizeDialog();
 	}
-	
-	private void showTextDir(){
-		TextDirDialog textDirDialog = new TextDirDialog();
-	}
-	
-	private void showEraserSize(){
+
+	private void showEraserSize() {
 		EraserSizeDialog eraserSizeDialog = new EraserSizeDialog();
 	}
-	
-	private void showChatWindow(){
+
+	private void showChatWindow() {
 		chatDialog.jDialog.setVisible(true);
 	}
-	
 
+	// the method of new a file
+	public void newFile() {
+		frame.setTitle("");
+		int wantSave = JOptionPane.showConfirmDialog(null, "Do you want to save current file?", "Hints", 0);
+
+		if (wantSave == 0) {
+			try {
+				saveFile();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (wantSave == 1) {
+			if (isOpenFile == true) {
+				frame.getContentPane().remove(imgLabel);
+			}
+			paintSurface.shapes.removeAll(paintSurface.shapes);
+			paintSurface.repaint();
+		}
+	}
+
+	// Open the file
+	public void openFile() throws IOException {
+		// File file = null;
+		JFileChooser chooseFile = new JFileChooser();
+		chooseFile.setMultiSelectionEnabled(false);
+		chooseFile.setDialogTitle("Pleash choose the file");
+		// Specify the file type
+		chooseFile.setFileFilter(new FileFilter() {
+
+			@Override
+			public boolean accept(File file) {
+				if (file.isDirectory()) {
+					return true;
+				}
+				String name = file.getName().toLowerCase();
+				if (name.endsWith(".jpg") || name.endsWith(".png") || name.endsWith(".gif") || name.endsWith(".bmp")
+						|| name.endsWith(".ico") || name.endsWith(".jpeg")) {
+					return true;
+				}
+				return false;
+			}
+
+			@Override
+			public String getDescription() {
+				return "Image Files";
+			}
+
+		});
+
+		int returnVal = chooseFile.showOpenDialog(null);
+		chooseFile.setVisible(true);
+
+		switch (returnVal) {
+		case JFileChooser.APPROVE_OPTION:
+			File file = chooseFile.getSelectedFile().getAbsoluteFile();
+			fileName = file.getName();
+			filePath = file.getPath();
+			frame.setTitle(fileName);
+			
+			//paintSurface.removeAll();
+			/*
+			FileInputStream fis = new FileInputStream(file);
+			BufferedImage img = ImageIO.read(fis);
+			Graphics g = img.getGraphics();
+			g.drawImage(img, 0, 0, paintSurface);
+			fis.close();*/
+			
+			if (isOpenFile == true)
+				 frame.getContentPane().remove(imgLabel);
+			paintSurface.shapes.removeAll(paintSurface.shapes);			
+			imgLabel = new JLabel();
+			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
+			isOpenFile = true;
+			imgLabel.setIcon(new ImageIcon(filePath));
+
+			break;
+		case JFileChooser.CANCEL_OPTION:
+
+			break;
+		case JFileChooser.ERROR_OPTION:
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	public void saveFile() throws IOException {
+		String name = frame.getTitle();
+		if (name.equals("")) { // save a new file
+			saveAsFile();
+		} else {
+	
+			if (isOpenFile == true)
+				frame.getContentPane().remove(imgLabel);
+			//paintSurface.shapes.removeAll(paintSurface.shapes);
+			paintSurface.repaint();
+
+			FileOutputStream fos = new FileOutputStream(filePath, true);
+			Component component = paintSurface;
+			BufferedImage imgNew = (BufferedImage) component.createImage(component.getWidth(), component.getHeight());
+			component.paint(imgNew.getGraphics());
+			BufferedOutputStream bos = new BufferedOutputStream(fos);
+			ImageIO.write(imgNew, "jpg", bos);
+			bos.flush();
+			bos.close();
+			JOptionPane.showMessageDialog(null, "The file was successfully saved.", "Hints", 0);
+		}
+	}
+
+	public void saveAsFile() throws IOException {
+		FileDialog saveDialog = new FileDialog(frame, "Save as...", FileDialog.SAVE);
+		saveDialog.setVisible(true);
+
+		fileName = saveDialog.getFile();
+		filePath = saveDialog.getDirectory();
+
+		FileOutputStream fos = new FileOutputStream(filePath + fileName);
+
+		Component component = paintSurface;
+		BufferedImage bufferedImage = (BufferedImage) component.createImage(component.getWidth(),
+				component.getHeight());
+		component.paint(bufferedImage.getGraphics());
+		BufferedOutputStream output = new BufferedOutputStream(fos);
+		
+		//String saveFormat = fileName.split(".")[1].toString();
+		
+		ImageIO.write(bufferedImage, "jpg", output);
+
+		output.flush();
+		output.close();
+
+		frame.setTitle(fileName);
+
+	}
+
+	private void setUpEventListener() {
+		newMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				newFile();
+			}
+		});
+
+		openMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					openFile();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		saveMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					saveFile();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+
+		saveAsMenuItem.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				try {
+					saveAsFile();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		});
+	}
 }
