@@ -279,7 +279,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
 		for(Entry<String, IRemoteClient> entry : clientset) {
 			IRemoteClient remoteclient = entry.getValue();
-			remoteclient.retrieveShape(itemShape);
+			if(remoteclient.getClientName().equalsIgnoreCase(client.getClientName()) == false) {
+				remoteclient.retrieveShape(itemShape);			
+			}
 			remoteclient.alert("new shape added from " + client.getClientName());
 		}	
 	}

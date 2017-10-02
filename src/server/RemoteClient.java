@@ -143,14 +143,12 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 
 	@Override
 	public void updateShapes(Set<IRemoteWBItem> shapes) throws RemoteException {
-		this.paint.getShapes().addAll(shapes);
 		this.paint.repaint();
 		this.shapes.addAll(shapes);		
 	}
 
 	@Override
 	public void removeShape(IRemoteWBItem shape) throws RemoteException {
-		this.paint.getShapes().remove(shape);
 		this.paint.repaint();
 		this.shapes.remove(shape);
 	}
