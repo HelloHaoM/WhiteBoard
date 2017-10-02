@@ -107,7 +107,7 @@ public class WhiteBoardClient {
 	private String fileName;
 	private String filePath;
 	private boolean isOpenFile = false;
-	private JLabel imgLabel;
+	public JLabel imgLabel;
 
 	private JMenu fileMenu;
 	private JMenuItem newMenuItem;
@@ -117,40 +117,6 @@ public class WhiteBoardClient {
 	
 	private boolean isFill;
 
-	/**
-	 * Launch the application.
-	 */
-	/*
-	 * public static void main(String[] args) { try{
-	 * UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
-	 * 
-	 * }catch(Exception e){ e.printStackTrace(); }
-	 * 
-	 * 
-	 * EventQueue.invokeLater(new Runnable() { public void run() { try { //Retrieve
-	 * the stub/proxy for the remote object from the registry Registry registry =
-	 * LocateRegistry.getRegistry("localhost");
-	 * 
-	 * IRemoteWBService remoteWB = (IRemoteWBService)
-	 * registry.lookup(IRemoteWBService.LOOKUP_NAME);
-	 * 
-	 * String roomname ="whiteboard1"; IRemoteClient manager = new RemoteClient(0,
-	 * "tianzhangh"); manager.setClientLevel(RemoteClient.ClientLevel.MANAGER);
-	 * 
-	 * IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
-	 * if(remoteserver != null) { remoteserver.setManager(manager); }
-	 * 
-	 * //add manager remoteserver.addClient(manager);
-	 * 
-	 * 
-	 * WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
-	 * window.frame.setVisible(true); } catch (Exception e) { e.printStackTrace(); }
-	 * } });
-	 * 
-	 * 
-	 * 
-	 * }
-	 */
 
 	/**
 	 * Create the application.
@@ -308,6 +274,8 @@ public class WhiteBoardClient {
 		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		//frame.setTitle(this.client.getClientName());
+		
+		imgLabel = new JLabel();
 
 		// set PaintSurface to the RemoteClient
 		paintSurface = new PaintSurface(client, server);
@@ -316,12 +284,13 @@ public class WhiteBoardClient {
 		// set chatDialog to the RemoteClient and the setVisible false
 		chatDialog = new ChatDialog(client, server);
 		((RemoteClient) client).setChat(chatDialog);
-
+		
+		
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
-
+		
 		titlePanel = new JPanel();
 		frame.getContentPane().add(titlePanel, BorderLayout.NORTH);
-
+		
 		lblWhiteboard = new JLabel(this.server.getRoomName());
 		lblWhiteboard.setFont(new Font("Times New Roman", Font.BOLD, 40));
 		titlePanel.add(lblWhiteboard);
@@ -524,7 +493,7 @@ public class WhiteBoardClient {
 	private void showChatWindow() {
 		chatDialog.jDialog.setVisible(true);
 	}
-
+	
 	// the method of new a file
 	public void newFile() {
 		frame.setTitle("");
@@ -586,22 +555,23 @@ public class WhiteBoardClient {
 			filePath = file.getPath();
 			frame.setTitle(fileName);
 			
-			//paintSurface.removeAll();
-			/*
-			FileInputStream fis = new FileInputStream(file);
+			paintSurface.shapes.clear();
+			paintSurface.repaint();
+
+			/*FileInputStream fis = new FileInputStream(file);
 			BufferedImage img = ImageIO.read(fis);
 			Graphics g = img.getGraphics();
-			g.drawImage(img, 0, 0, paintSurface);
 			fis.close();*/
-			
+				
 			if (isOpenFile == true)
 				 frame.getContentPane().remove(imgLabel);
-			paintSurface.shapes.removeAll(paintSurface.shapes);			
-			imgLabel = new JLabel();
+			paintSurface.shapes.clear();
 			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			isOpenFile = true;
-			imgLabel.setIcon(new ImageIcon(filePath));
-
+			ImageIcon img = new ImageIcon(filePath);
+			imgLabel.setIcon(img);
+			this.server.addImg(client, img);
+			
 			break;
 		case JFileChooser.CANCEL_OPTION:
 

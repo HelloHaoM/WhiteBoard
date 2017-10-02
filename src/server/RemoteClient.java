@@ -1,10 +1,14 @@
 package server;
 
+import java.awt.BorderLayout;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 
 import org.ChatDialog;
 import org.PaintSurface;
@@ -159,6 +163,17 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		if(this.getChat() != null) {
 			this.getChat().getChatShow().append(msg);
 		}
+	}
+
+	@Override
+	public void retrieveImg(ImageIcon img) throws RemoteException {
+		System.out.println("retrieve img");
+		if(img != null) {
+			whiteBoardClient.getFrame().getContentPane().remove(this.whiteBoardClient.imgLabel);
+			whiteBoardClient.getFrame().getContentPane().add(this.whiteBoardClient.imgLabel, BorderLayout.CENTER);
+			this.whiteBoardClient.imgLabel.setIcon(img);
+		}
+		
 	}
 	
 }

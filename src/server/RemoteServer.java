@@ -14,6 +14,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+
 import remote.IRemoteClient;
 import remote.IRemoteServer;
 import remote.IRemoteWBItem;
@@ -28,6 +31,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 	private Map<String, IRemoteClient> clients;
 	private Map<String, IRemoteClient> requestClients;
 	private Set<IRemoteWBItem> shapes;
+	private ImageIcon img;
 	
 	private static int clientNum; //synchronized it later
 	private static int requestNum;
@@ -367,6 +371,23 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		Map<String, IRemoteClient> clients = this.getClients();
 		for( Entry<String, IRemoteClient> entry: clients.entrySet() ) {
 			entry.getValue().broadCast(msg);
+		}
+	}
+	
+	@Override
+	public void loadImg(IRemoteClient client) throws RemoteException {
+		client.retrieveImg(img);
+	}
+
+	@Override
+	public void addImg(IRemoteClient client, ImageIcon img) throws RemoteException {
+		this.img = img;
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for(Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			if(!remoteclient.getClientName().equalsIgnoreCase(client.getClientName())) {
+				remoteclient.retrieveImg(img);
+			}
 		}
 	}
 

@@ -5,6 +5,8 @@ import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
+
 import server.RemoteClient.ClientLevel;
 /**
  * 
@@ -26,6 +28,8 @@ public interface IRemoteClient extends Remote{
 	public void retrieveShape(IRemoteWBItem shape) throws RemoteException;
 	public void removeShape(IRemoteWBItem shape) throws RemoteException;
 	public void updateShapes(Set<IRemoteWBItem> shapes) throws RemoteException;
+	
+	public void retrieveImg(ImageIcon img) throws RemoteException;
 	//for multi-clients chat only
 	public void broadCast(String msg) throws RemoteException;
 	

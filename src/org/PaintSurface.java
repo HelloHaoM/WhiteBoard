@@ -2,7 +2,9 @@ package org;
 
 import java.awt.AlphaComposite;
 import java.awt.BasicStroke;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
@@ -20,16 +22,19 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
 import remote.IRemoteClient;
@@ -45,7 +50,7 @@ import server.RemoteWBItem;
 public class PaintSurface extends JComponent{
 	private IRemoteClient client;
 	private IRemoteServer remoteserver;
-	
+	private ImageIcon img;
 	ArrayList<IRemoteWBItem> shapes = new ArrayList<IRemoteWBItem>();
 	
 	Point startDrag, endDrag;
@@ -77,10 +82,15 @@ public class PaintSurface extends JComponent{
 	public PaintSurface(IRemoteClient client, IRemoteServer remoteserver) throws RemoteException{
 		this.client = client;
 		this.remoteserver = remoteserver;
-		 for (IRemoteWBItem remoteshape : remoteserver.getShapes()   ) {
-			 	this.addItem(remoteshape);			
-	        }
 		
+		this.remoteserver.loadImg(client);
+		JLabel imgLabel = new JLabel(img, SwingConstants.CENTER);		
+		imgLabel.setLabelFor(this);
+		imgLabel.setVisible(true);
+		
+		for (IRemoteWBItem remoteshape : remoteserver.getShapes()) {
+			this.addItem(remoteshape);			
+	    }
 		
 		this.addMouseListener(new MouseAdapter() {
 			@Override
@@ -308,6 +318,7 @@ public class PaintSurface extends JComponent{
 		
 		//g2.setStroke(new BasicStroke(strokeValue));
 		g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1.00f));
+		
 		try {
 		for(IRemoteWBItem s : shapes){
 			//g2.setPaint(colors[s.getMyColorIndex()]);

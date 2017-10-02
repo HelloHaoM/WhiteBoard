@@ -8,6 +8,8 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.ImageIcon;
 /**
  * 
  * @author tianzhangh
@@ -40,6 +42,8 @@ public interface IRemoteServer extends Remote{
 	//manage and update the room's white board 
 	public void addShape(IRemoteClient client, Shape shape, Color colour,int Drawtype ,int Stroke) throws RemoteException;
 	public void addText(IRemoteClient client, Shape shape, String text, Color colour,int Drawtype ,int Stroke, Point Pos) throws RemoteException;
+	public void addImg(IRemoteClient client, ImageIcon img) throws RemoteException;
+	public void loadImg(IRemoteClient client) throws RemoteException;
 	public Set<IRemoteWBItem> getShapes() throws RemoteException;
 	public void removeItemsByClient(IRemoteClient client) throws RemoteException;
 	public void removeItem(IRemoteClient client, IRemoteWBItem item) throws RemoteException;
