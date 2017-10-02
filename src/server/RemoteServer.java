@@ -1,6 +1,7 @@
 package server;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Shape;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -282,6 +283,19 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 			remoteclient.alert("new shape added from " + client.getClientName());
 		}	
 	}
+	
+	@Override
+	public void addText(IRemoteClient client, Shape shape, String text, Color colour,int DrawType ,int Stroke, Point Pos) throws RemoteException{
+		IRemoteWBItem itemTextShape = new RemoteWBItem(client, shape, text, colour , DrawType, Stroke, Pos);
+		this.shapes.add(itemTextShape);
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for(Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			remoteclient.retrieveShape(itemTextShape);
+			remoteclient.alert("new Text added from " + client.getClientName());
+		}
+	}
+	
 	/**
 	 * Given an IRemoteClient, and an IRemoteWBIitem which need to be globally removed
 	 * 

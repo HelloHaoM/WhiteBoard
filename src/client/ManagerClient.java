@@ -57,6 +57,8 @@ public class ManagerClient {
 					
 					WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
 					window.frame.setVisible(true);
+					
+					((RemoteClient) manager).setWhiteBoardClient(window);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

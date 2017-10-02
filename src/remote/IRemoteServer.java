@@ -1,6 +1,7 @@
 package remote;
 
 import java.awt.Color;
+import java.awt.Point;
 import java.awt.Shape;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -38,6 +39,7 @@ public interface IRemoteServer extends Remote{
 	
 	//manage and update the room's white board 
 	public void addShape(IRemoteClient client, Shape shape, Color colour,int Drawtype ,int Stroke) throws RemoteException;
+	public void addText(IRemoteClient client, Shape shape, String text, Color colour,int Drawtype ,int Stroke, Point Pos) throws RemoteException;
 	public Set<IRemoteWBItem> getShapes() throws RemoteException;
 	public void removeItemsByClient(IRemoteClient client) throws RemoteException;
 	public void removeItem(IRemoteClient client, IRemoteWBItem item) throws RemoteException;

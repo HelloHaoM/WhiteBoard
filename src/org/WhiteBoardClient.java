@@ -36,6 +36,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
@@ -73,6 +74,9 @@ public class WhiteBoardClient {
 	private JButton btnPaintSize;
 	private JMenuBar menuBar;
 	private JButton btnPoly;
+	private JScrollPane scrollPane;
+	private static JTextArea textArea;
+	private JLabel lblOptions;
 	
 	private ChatDialog chatDialog;
 	private PaintSurface paintSurface;
@@ -235,6 +239,13 @@ public class WhiteBoardClient {
 	public static JFrame getFrame(){
 		return frame;
 	}
+	
+	public void showOptions(String msg){
+		System.out.println("Show");
+		String showMsg = msg + "\n\n";
+		textArea.append(showMsg);
+		textArea.setCaretPosition(textArea.getText().length());
+	}
 
 	/**
 	 * Initialize the contents of the frame.
@@ -393,6 +404,34 @@ public class WhiteBoardClient {
 		gbc_btnOpenChat.gridx = 0;
 		gbc_btnOpenChat.gridy = 17;
 		functionPanel.add(btnOpenChat, gbc_btnOpenChat);
+		
+		lblOptions = new JLabel("Options");
+		lblOptions.setFont(new Font("Times New Roman", Font.BOLD,20));
+		GridBagConstraints gbc_lblOptions = new GridBagConstraints();
+		gbc_lblOptions.insets = new Insets(0, 0, 5, 0);
+		gbc_lblOptions.gridx = 0;
+		gbc_lblOptions.gridy = 18;
+		functionPanel.add(lblOptions, gbc_lblOptions);
+		
+		scrollPane = new JScrollPane();
+		scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+		scrollPane.setBorder(null);
+		scrollPane.setPreferredSize(new Dimension(90, 80));
+		GridBagConstraints gbc_scrollPane = new GridBagConstraints();
+		gbc_scrollPane.fill = GridBagConstraints.VERTICAL;
+		gbc_scrollPane.insets = new Insets(0, 0, 5, 0);
+		gbc_scrollPane.gridx = 0;
+		gbc_scrollPane.gridy = 19;
+		functionPanel.add(scrollPane, gbc_scrollPane);
+		
+		textArea = new JTextArea();
+		textArea.setBackground(new Color(214,217,223));
+		textArea.setBorder(null);
+		textArea.setEditable(false);
+		textArea.setLineWrap(true);
+		textArea.setFont(new Font("Times New Roman", Font.BOLD,10));
+		scrollPane.setViewportView(textArea);
 		
 		JMenu fileMenu = new JMenu("File");
 		JMenuItem newMenuItem = new JMenuItem("New");

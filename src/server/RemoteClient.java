@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.ChatDialog;
 import org.PaintSurface;
+import org.WhiteBoardClient;
 
 import remote.IRemoteClient;
 import remote.IRemoteWBItem;
@@ -26,8 +27,10 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	private String clientName;
 	private ClientLevel lv;
 	private PaintSurface paint;
+	private WhiteBoardClient whiteBoardClient;
 	private ChatDialog chat;
 	private Set<IRemoteWBItem> shapes;
+	
 	
 	public enum ClientLevel{
 		MANAGER(0), USER(1), VISITOR(2);
@@ -79,10 +82,21 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		return this.chat;
 	}
 	
+	public WhiteBoardClient getWhiteBoardClient() {
+		return whiteBoardClient;
+	}
+
+	public void setWhiteBoardClient(WhiteBoardClient whiteBoardClient) {
+		this.whiteBoardClient = whiteBoardClient;
+	}
+	
 	@Override
 	public void alert(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
 		System.out.println(msg);
+		if(whiteBoardClient != null){
+			whiteBoardClient.showOptions(msg);
+		}
 		
 	}
 	

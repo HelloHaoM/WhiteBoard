@@ -39,7 +39,18 @@ public class RemoteWBItem extends UnicastRemoteObject implements IRemoteWBItem {
 		this.strokeValue = strokeValue;
 	}
 	
-
+	public RemoteWBItem(IRemoteClient client, Shape shape, String text, Color color, int drawType, int strokeValue, Point pos) throws RemoteException {
+		super();
+		this.client = client;
+		this.shape = shape;
+		this.creationDate = new Date();
+		this.drawType = drawType;
+		this.colour = color;
+		this.text = text;
+		this.strokeValue = strokeValue;
+		this.pos = pos;
+	}
+	
 	public void setText(String text) {
 			this.text = text;
 		}

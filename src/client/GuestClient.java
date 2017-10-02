@@ -62,6 +62,8 @@ public class GuestClient {
 					
 					WhiteBoardClient window = new WhiteBoardClient(remoteClient, remoteserver);
 					window.frame.setVisible(true);
+					
+					((RemoteClient) remoteClient).setWhiteBoardClient(window);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
