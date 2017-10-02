@@ -34,7 +34,7 @@ public class EraserSizeDialog {
 		btnSize1.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				PaintSurface.eraserSize = 10;
+				PaintSurface.eraserSize = 20;
 				jDialog.dispose();
 			}
 		});
@@ -47,7 +47,7 @@ public class EraserSizeDialog {
 		btnSize2.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				PaintSurface.eraserSize = 20;
+				PaintSurface.eraserSize = 30;
 				jDialog.dispose();
 			}
 		});
@@ -61,7 +61,7 @@ public class EraserSizeDialog {
 		btnSize3.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				PaintSurface.eraserSize = 30;
+				PaintSurface.eraserSize = 40;
 				jDialog.dispose();
 			}
 		});

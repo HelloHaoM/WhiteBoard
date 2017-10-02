@@ -51,8 +51,16 @@ public class PaintSurface extends JComponent{
 	Point startDrag, endDrag;
 	int[] x = new int[50];
 	int[] y = new int [50];
+	int[] freex = new int[5000];
+	int[] freey = new int[5000];
+	int[] eraserx = new int[5000];
+	int[] erasery = new int[5000];
 	static int xcount = 0;
 	static int ycount = 0;
+	static int freexCount = 0;
+	static int freeyCount = 0;
+	static int eraserxCount = 0;
+	static int eraseryCount = 0;
 	static Color color = Color.BLACK;
 	public static int strokeValue = 2;
 	public static int eraserSize = 10;
@@ -88,6 +96,8 @@ public class PaintSurface extends JComponent{
 			
 			@Override
 			public void mouseReleased(MouseEvent e){
+				freexCount = 0;
+				freeyCount = 0;
 				Shape r = null;
 				IRemoteWBItem item;
 				try{
@@ -158,7 +168,7 @@ public class PaintSurface extends JComponent{
 				}else if(shapeType.equals("Text")){
 					
 					TextDialog t1 = new TextDialog();
-					IRemoteWBItem myTextShape = new RemoteWBItem(client, r, color, 3, strokeValue);
+					IRemoteWBItem myTextShape = new RemoteWBItem(client, r, color, drawType, strokeValue);
 					((RemoteWBItem)myTextShape).setPos(startDrag);
 					((RemoteWBItem)myTextShape).setText(text);
 					shapes.add(myTextShape);
@@ -168,7 +178,7 @@ public class PaintSurface extends JComponent{
 					remoteshapes.add(item);
 					
 					// add new shape to the rmi server
-					remoteserver.addText(client, r, text, color, 3, strokeValue, startDrag);
+					remoteserver.addText(client, r, text, color, drawType, strokeValue, startDrag);
 				}
 				startDrag = null;
 				endDrag = null;
@@ -183,7 +193,7 @@ public class PaintSurface extends JComponent{
 				IRemoteWBItem item;
 				
 				try {
-				if(e.getButton() == MouseEvent.BUTTON3){
+				if(e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2){
 					
 					Shape r = makeGeneralPath(x, y, xcount);
 					
@@ -218,7 +228,7 @@ public class PaintSurface extends JComponent{
 					
 				if(shapeType.equals("Eraser")){
 					eraserShape = new Rectangle2D.Float(e.getX() - eraserSize/2, e.getY() - eraserSize/2, eraserSize, eraserSize);
-					 item = new RemoteWBItem(client,eraserShape, WhiteBoardClient.getFrame().getBackground(), 4, eraserSize);
+					item = new RemoteWBItem(client,eraserShape, WhiteBoardClient.getFrame().getBackground(), 4, eraserSize);
 					
 					//add shape to the IRemoteWBItem list
 					remoteshapes.add(item);
@@ -229,7 +239,12 @@ public class PaintSurface extends JComponent{
 					
 				}
 				if(shapeType.equals("Free")){
-					Shape r = new Rectangle2D.Float(e.getX() - strokeValue/2, e.getY() - strokeValue/2, strokeValue, strokeValue);
+					//Shape r = new Rectangle2D.Float(e.getX() - strokeValue/2, e.getY() - strokeValue/2, strokeValue, strokeValue);
+					freex[freexCount] = e.getX();
+					freey[freeyCount] = e.getY();
+					freexCount++;
+					freeyCount++;
+					Shape r = makeFreePath(freex, freey, freexCount);
 					item = new RemoteWBItem(client, r, color, drawType, strokeValue);
 					
 					//add shape to the IRemoteWBItem list
@@ -260,7 +275,7 @@ public class PaintSurface extends JComponent{
 		try {
 			
 			// example here need to unify the two class: MyShape and RemoteWBItem
-		if(item.getDrawType() == 3){
+		if(item.getDrawType() == 3 || item.getDrawType() == 5) {
 			shapes.add(new RemoteWBItem(client,item.getShape(), item.getText(), item.getColour(), item.getDrawType(), item.getStrokeValue(), item.getPos()));
 		}else{
 			shapes.add(new RemoteWBItem(client,item.getShape(), item.getColour(), item.getDrawType(), item.getStrokeValue()));
@@ -323,7 +338,14 @@ public class PaintSurface extends JComponent{
 			}
 			if(s.getDrawType() == 3){
 				g2.drawString(s.getText(), s.getPos().x, s.getPos().y);
-			}else{
+			}else if(s.getDrawType() == 5){
+				g2.translate(this.getWidth() / 2,this.getHeight() / 2);
+				g2.rotate(90 * Math.PI / 180);
+				g2.drawString(s.getText(), (s.getPos().y - this.getHeight() / 2), -(s.getPos().x - this.getWidth() / 2));
+				g2.rotate(270 * Math.PI / 180);
+				g2.translate(-this.getWidth() / 2,-this.getHeight() / 2);
+			}
+			else{
 				g2.draw(s.getShape());
 				if(s.getDrawType() == 1 || s.getDrawType() == 4){
 					//g2.setPaint(colors[s.getMyColorIndex()]);
@@ -389,6 +411,15 @@ public class PaintSurface extends JComponent{
 			path.lineTo(x[i], y[i]);
 		}
 		path.closePath();
+		return path;
+	}
+	
+	private GeneralPath makeFreePath(int x[], int y[], int count){
+		GeneralPath path = new GeneralPath();
+		path.moveTo(x[0], y[0]);
+		for(int i = 0; i < count; i++){
+			path.lineTo(x[i], y[i]);
+		}
 		return path;
 	}
 	

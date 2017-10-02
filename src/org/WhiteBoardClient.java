@@ -214,6 +214,7 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Text";
+				showTextDir();
 			}
 		});
 		
@@ -457,6 +458,10 @@ public class WhiteBoardClient {
 	
 	private void showPaintSize(){
 		PaintSizeDialog paintSizeDialog = new PaintSizeDialog();
+	}
+	
+	private void showTextDir(){
+		TextDirDialog textDirDialog = new TextDirDialog();
 	}
 	
 	private void showEraserSize(){

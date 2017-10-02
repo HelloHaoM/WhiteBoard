@@ -9,7 +9,7 @@ public class MyShape {
 	private Color color;
 	private String text;
 	private Point pos;
-	private int drawType; //1: fill, 2: line, 3: text, 4: eraser
+	private int drawType; //1: fill, 2: line, 3: text, 4: eraser, 5: verText
 	private int strokeValue;
 	private int eraserSize;
 	
