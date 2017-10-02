@@ -83,14 +83,12 @@ public class PaintSurface extends JComponent{
 		this.client = client;
 		this.remoteserver = remoteserver;
 		
-		this.remoteserver.loadImg(client);
-		JLabel imgLabel = new JLabel(img, SwingConstants.CENTER);		
-		imgLabel.setLabelFor(this);
-		imgLabel.setVisible(true);
-		
-		for (IRemoteWBItem remoteshape : remoteserver.getShapes()) {
+		/*for (IRemoteWBItem remoteshape : remoteserver.getShapes()) {
 			this.addItem(remoteshape);			
-	    }
+	    }*/
+		
+		this.setOpaque(false);
+		setBackground(new Color(0,0,0,65));
 		
 		this.addMouseListener(new MouseAdapter() {
 			@Override

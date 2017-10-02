@@ -9,6 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
 import org.ChatDialog;
 import org.PaintSurface;
@@ -166,12 +167,13 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	}
 
 	@Override
-	public void retrieveImg(ImageIcon img) throws RemoteException {
-		System.out.println("retrieve img");
+	public void retrieveImg(ImageIcon img) throws RemoteException {	
 		if(img != null) {
-			whiteBoardClient.getFrame().getContentPane().remove(this.whiteBoardClient.imgLabel);
-			whiteBoardClient.getFrame().getContentPane().add(this.whiteBoardClient.imgLabel, BorderLayout.CENTER);
-			this.whiteBoardClient.imgLabel.setIcon(img);
+			System.out.println("retrieve img");
+			JLabel imgLabel = new JLabel();
+			imgLabel.setOpaque(false);
+			this.whiteBoardClient.getFrame().getContentPane().add(imgLabel);
+			imgLabel.setIcon(img);
 		}
 		
 	}

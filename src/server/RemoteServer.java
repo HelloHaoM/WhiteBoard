@@ -380,7 +380,10 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 	public void loadImg(IRemoteClient client) throws RemoteException {
 		client.retrieveImg(img);
 	}
-
+	
+	@Override public ImageIcon getImg() throws RemoteException {
+		return this.img;
+	}
 	@Override
 	public void addImg(IRemoteClient client, ImageIcon img) throws RemoteException {
 		this.img = img;

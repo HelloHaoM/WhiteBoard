@@ -61,6 +61,7 @@ import javax.swing.text.html.HTMLDocument.Iterator;
 
 import remote.IRemoteClient;
 import remote.IRemoteServer;
+import remote.IRemoteWBItem;
 import remote.IRemoteWBService;
 import server.RemoteClient;
 import server.RemoteServer;
@@ -128,7 +129,7 @@ public class WhiteBoardClient {
 		this.server = server;
 
 		initialize();
-
+		
 		btnPaintSize.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -273,20 +274,41 @@ public class WhiteBoardClient {
 		// frame.setBounds(100, 100, 450, 300);
 		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+<<<<<<< Updated upstream
 		frame.setTitle(this.client.getClientName());
+=======
+		//frame.setTitle(this.client.getClientName());
+				
 		
-		imgLabel = new JLabel();
-
+		
+>>>>>>> Stashed changes
+		
 		// set PaintSurface to the RemoteClient
 		paintSurface = new PaintSurface(client, server);
 		((RemoteClient) this.client).setPaint(paintSurface);
-
+		
 		// set chatDialog to the RemoteClient and the setVisible false
 		chatDialog = new ChatDialog(client, server);
 		((RemoteClient) client).setChat(chatDialog);
 		
+		//this.paintSurface.add(imgLabel);
+		//this.server.loadImg(client);		
+		
+		for (IRemoteWBItem remoteshape : server.getShapes()) {
+			this.paintSurface.addItem(remoteshape);			
+        }
+		
+		imgLabel = new JLabel();
+		ImageIcon img = this.server.getImg();
+		if(img != null) {
+			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
+			imgLabel.setIcon(img);
+		}
 		
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
+		
+	
+		
 		
 		titlePanel = new JPanel();
 		frame.getContentPane().add(titlePanel, BorderLayout.NORTH);
@@ -472,9 +494,10 @@ public class WhiteBoardClient {
 		menuBar.add(fileMenu);
 
 		frame.setJMenuBar(menuBar);
-
+		
 		// listen file operations
 		setUpEventListener();
+		
 
 	}
 
@@ -562,7 +585,7 @@ public class WhiteBoardClient {
 			BufferedImage img = ImageIO.read(fis);
 			Graphics g = img.getGraphics();
 			fis.close();*/
-				
+			imgLabel = new JLabel();	
 			if (isOpenFile == true)
 				 frame.getContentPane().remove(imgLabel);
 			paintSurface.shapes.clear();

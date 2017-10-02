@@ -51,4 +51,5 @@ public interface IRemoteServer extends Remote{
 	
 	//for multi-clients chat
 	public void sendMessage(String msg) throws RemoteException;
+	public ImageIcon getImg() throws RemoteException;
 }
