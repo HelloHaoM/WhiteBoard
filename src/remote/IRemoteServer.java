@@ -38,6 +38,7 @@ public interface IRemoteServer extends Remote{
 	public void removeRequest(IRemoteClient manager, String clientname) throws RemoteException;
 	
 	public void updateAllClients(String msg) throws RemoteException;
+	public void updateAllClientsWithClientName() throws RemoteException;
 	
 	//manage and update the room's white board 
 	public void addShape(IRemoteClient client, Shape shape, Color colour,int Drawtype ,int Stroke) throws RemoteException;

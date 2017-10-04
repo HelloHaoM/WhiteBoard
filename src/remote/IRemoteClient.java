@@ -24,6 +24,7 @@ public interface IRemoteClient extends Remote{
 	public ClientLevel getClietnLevel() throws RemoteException;
 	//for whiteboard status output (need to be modified to GUI version)
 	public void alert(String msg) throws RemoteException;
+	public void alertClientList(Set<String> clientNameList) throws RemoteException;
 	
 	public void retrieveShape(IRemoteWBItem shape) throws RemoteException;
 	public void removeShape(IRemoteWBItem shape) throws RemoteException;

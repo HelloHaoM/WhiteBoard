@@ -25,7 +25,7 @@ import server.RemoteClient;
  * @author tianzhangh
  *
  */
-public class GuestClient {
+public class GuestClient2 {
 	/**
 	 * Launch the application.
 	 */
@@ -40,7 +40,7 @@ public class GuestClient {
 			public void run() {
 				try {
 					IRemoteClient remoteClient = new RemoteClient();
-					remoteClient.setClientName("client455");
+					remoteClient.setClientName("hao");
 					remoteClient.setClientLevel(RemoteClient.ClientLevel.USER);
 				    
 				    

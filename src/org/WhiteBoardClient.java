@@ -9,6 +9,7 @@ import java.awt.Graphics;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -16,6 +17,7 @@ import javax.swing.JOptionPane;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -45,6 +47,8 @@ import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.JRadioButton;
 import java.awt.Color;
@@ -98,8 +102,17 @@ public class WhiteBoardClient {
 	private JScrollPane scrollPane;
 	private static JTextArea textArea;
 	private JLabel lblOptions;
+	private JLabel lblClientList;
+	private JLabel lblChat_1;
+	private static JTextArea txtrShowchat;
+	private JLabel lblInput;
+	private JButton btnSend;
+	private JScrollPane scrollPane_3;
+	private static JList list;
+	private static DefaultListModel<String> dlm;
+	private JPanel panel;
+	private JTextArea txtrInputchat;
 
-	private ChatDialog chatDialog;
 	private PaintSurface paintSurface;
 	private IRemoteClient client;
 	private IRemoteServer server;
@@ -244,10 +257,18 @@ public class WhiteBoardClient {
 			}
 		});
 
-		btnOpenChat.addMouseListener(new MouseAdapter() {
+		btnSend.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e) {
-				showChatWindow();
+			public void mouseClicked(MouseEvent e){
+				try{
+					LocalDateTime date = LocalDateTime.now();
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+					server.sendMessage(client.getClientName()+"["+date.format(formatter)+"]: "+ "\n" + txtrInputchat.getText()+"\n");
+					txtrInputchat.setText("");
+				}catch(RemoteException re){
+					re.printStackTrace();
+				}
+				
 			}
 		});
 
@@ -255,6 +276,18 @@ public class WhiteBoardClient {
 
 	public static JFrame getFrame() {
 		return frame;
+	}
+	
+	public static JTextArea getShowChat(){
+		return txtrShowchat;
+	}
+	
+	public static DefaultListModel<String> getDlm(){
+		return dlm;
+	}
+	
+	public static JList getJlist(){
+		return list;
 	}
 
 	public void showOptions(String msg) {
@@ -274,22 +307,14 @@ public class WhiteBoardClient {
 		// frame.setBounds(100, 100, 450, 300);
 		frame.setSize(1000, 1000);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-<<<<<<< Updated upstream
+
 		frame.setTitle(this.client.getClientName());
-=======
-		//frame.setTitle(this.client.getClientName());
-				
-		
-		
->>>>>>> Stashed changes
+
 		
 		// set PaintSurface to the RemoteClient
 		paintSurface = new PaintSurface(client, server);
 		((RemoteClient) this.client).setPaint(paintSurface);
 		
-		// set chatDialog to the RemoteClient and the setVisible false
-		chatDialog = new ChatDialog(client, server);
-		((RemoteClient) client).setChat(chatDialog);
 		
 		//this.paintSurface.add(imgLabel);
 		//this.server.loadImg(client);		
@@ -428,24 +453,6 @@ public class WhiteBoardClient {
 		gbc_btnColorChoosing.gridy = 14;
 		functionPanel.add(btnColorChoosing, gbc_btnColorChoosing);
 
-		lblChat = new JLabel("Chat");
-		lblChat.setFont(new Font("Times New Roman", Font.BOLD, 20));
-		GridBagConstraints gbc_lblChat = new GridBagConstraints();
-		gbc_lblChat.insets = new Insets(0, 0, 5, 0);
-		gbc_lblChat.gridx = 0;
-		gbc_lblChat.gridy = 16;
-		functionPanel.add(lblChat, gbc_lblChat);
-
-		btnOpenChat = new JButton("Open Chat");
-		btnOpenChat.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
-		GridBagConstraints gbc_btnOpenChat = new GridBagConstraints();
-		gbc_btnOpenChat.insets = new Insets(0, 0, 5, 0);
-		gbc_btnOpenChat.gridx = 0;
-		gbc_btnOpenChat.gridy = 17;
-		functionPanel.add(btnOpenChat, gbc_btnOpenChat);
 
 		lblOptions = new JLabel("Options");
 		lblOptions.setFont(new Font("Times New Roman", Font.BOLD, 20));
@@ -474,6 +481,56 @@ public class WhiteBoardClient {
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Times New Roman", Font.BOLD, 10));
 		scrollPane.setViewportView(textArea);
+		
+		panel = new JPanel();
+		frame.getContentPane().add(panel, BorderLayout.EAST);
+		
+		panel.setPreferredSize(new Dimension(250, 1000));
+		panel.setLayout(null);
+		
+		lblClientList = new JLabel("Client List");
+		lblClientList.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		lblClientList.setBounds(87, 6, 92, 16);
+		panel.add(lblClientList);
+		
+		lblChat_1 = new JLabel("Chat");
+		lblChat_1.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		lblChat_1.setBounds(110, 270, 61, 16);
+		panel.add(lblChat_1);
+
+		lblInput = new JLabel("Input");
+		lblInput.setFont(new Font("Times New Roman", Font.BOLD, 20));
+		lblInput.setBounds(6, 523, 61, 16);
+		panel.add(lblInput);
+		
+		btnSend = new JButton("Send");
+		btnSend.setBounds(75, 603, 117, 29);
+		panel.add(btnSend);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setBounds(6, 298, 238, 214);
+		panel.add(scrollPane_1);
+		
+		txtrShowchat = new JTextArea();
+		scrollPane_1.setViewportView(txtrShowchat);
+		txtrShowchat.setLineWrap(true);
+		
+		JScrollPane scrollPane_2 = new JScrollPane();
+		scrollPane_2.setBounds(6, 551, 238, 34);
+		panel.add(scrollPane_2);
+		
+		txtrInputchat = new JTextArea();
+		scrollPane_2.setViewportView(txtrInputchat);
+		txtrInputchat.setLineWrap(true);
+		
+		scrollPane_3 = new JScrollPane();
+		scrollPane_3.setBounds(6, 34, 238, 214);
+		panel.add(scrollPane_3);
+		
+		dlm = new DefaultListModel<String>();
+		list = new JList();
+		list.setModel(dlm);
+		scrollPane_3.setViewportView(list);
 
 		fileMenu = new JMenu("File");
 		newMenuItem = new JMenuItem("New");
@@ -513,9 +570,6 @@ public class WhiteBoardClient {
 		EraserSizeDialog eraserSizeDialog = new EraserSizeDialog();
 	}
 
-	private void showChatWindow() {
-		chatDialog.jDialog.setVisible(true);
-	}
 	
 	// the method of new a file
 	public void newFile() {

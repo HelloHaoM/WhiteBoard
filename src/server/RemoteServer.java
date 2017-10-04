@@ -110,6 +110,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		    String msg = clientname + " added in "+ this.roomName;
 		    System.out.println(msg);
 		    this.updateAllClients(msg);
+		    this.updateAllClientsWithClientName();
 		}
 		else {
 			client.alert("client name exit");
@@ -163,6 +164,14 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer{
 		Map<String, IRemoteClient> clients = this.getClients();
 		for( Entry<String, IRemoteClient> entry: clients.entrySet() ) {
 			entry.getValue().alert(msg);
+		}
+	}
+	
+	@Override
+	public void updateAllClientsWithClientName() throws RemoteException {
+		Map<String, IRemoteClient> clients = this.getClients();
+		for( Entry<String, IRemoteClient> entry: clients.entrySet() ) {
+			entry.getValue().alertClientList(this.getClientNameList());
 		}
 	}
 

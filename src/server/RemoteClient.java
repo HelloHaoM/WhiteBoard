@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -11,7 +12,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
-import org.ChatDialog;
 import org.PaintSurface;
 import org.WhiteBoardClient;
 
@@ -33,7 +33,6 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	private ClientLevel lv;
 	private PaintSurface paint;
 	private WhiteBoardClient whiteBoardClient;
-	private ChatDialog chat;
 	private Set<IRemoteWBItem> shapes;
 	
 	
@@ -75,17 +74,11 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		this.paint = paint;
 	}
 	
-	public void setChat(ChatDialog chat) {
-		this.chat = chat;
-	}
 	
 	public PaintSurface getPaint() {
 		return this.paint;
 	}
 	
-	public ChatDialog getChat() {
-		return this.chat;
-	}
 	
 	public WhiteBoardClient getWhiteBoardClient() {
 		return whiteBoardClient;
@@ -103,6 +96,19 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 			whiteBoardClient.showOptions(msg);
 		}
 		
+	}
+	
+	@Override
+	public void alertClientList(Set<String> clientNameList) throws RemoteException{
+		if(whiteBoardClient != null){
+			whiteBoardClient.getDlm().removeAllElements();
+			Iterator<String> it = clientNameList.iterator();
+			while(it.hasNext()){
+				String name = it.next();
+				whiteBoardClient.getDlm().addElement(name);
+			}
+			whiteBoardClient.getJlist().setModel(whiteBoardClient.getDlm());
+		}
 	}
 	
 
@@ -161,8 +167,8 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	@Override
 	public void broadCast(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
-		if(this.getChat() != null) {
-			this.getChat().getChatShow().append(msg);
+		if(whiteBoardClient != null){
+			WhiteBoardClient.getShowChat().append(msg);
 		}
 	}
 

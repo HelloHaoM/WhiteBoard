@@ -5,6 +5,8 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.swing.UIManager;
@@ -57,6 +59,15 @@ public class ManagerClient {
 					
 					WhiteBoardClient window = new WhiteBoardClient(manager, remoteserver);
 					window.frame.setVisible(true);
+					
+					Set<String> nameList = remoteserver.getClientNameList();
+					Iterator<String> it = nameList.iterator();
+					while(it.hasNext()){
+						String name = it.next();
+						System.out.println(name);
+						window.getDlm().addElement(name);
+						window.getJlist().setModel(window.getDlm());
+					}
 					
 					((RemoteClient) manager).setWhiteBoardClient(window);
 				} catch (Exception e) {
