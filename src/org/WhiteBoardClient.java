@@ -1,5 +1,6 @@
 package org;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.FileDialog;
@@ -29,6 +30,8 @@ import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -117,7 +120,6 @@ public class WhiteBoardClient {
 	private IRemoteClient client;
 	private IRemoteServer server;
 
-	private File curFile;
 	private String fileName;
 	private String filePath;
 	private boolean isOpenFile = false;
@@ -128,9 +130,8 @@ public class WhiteBoardClient {
 	private JMenuItem openMenuItem;
 	private JMenuItem saveMenuItem;
 	private JMenuItem saveAsMenuItem;
-	
-	private boolean isFill;
 
+	private boolean isFill;
 
 	/**
 	 * Create the application.
@@ -142,7 +143,7 @@ public class WhiteBoardClient {
 		this.server = server;
 
 		initialize();
-		
+
 		btnPaintSize.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
@@ -171,9 +172,9 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Line";
-				if(isFill){
+				if (isFill) {
 					PaintSurface.drawType = 1;
-				}else{
+				} else {
 					PaintSurface.drawType = 0;
 				}
 			}
@@ -182,9 +183,9 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Rectangle";
-				if(isFill){
+				if (isFill) {
 					PaintSurface.drawType = 1;
-				}else{
+				} else {
 					PaintSurface.drawType = 0;
 				}
 			}
@@ -194,9 +195,9 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Circle";
-				if(isFill){
+				if (isFill) {
 					PaintSurface.drawType = 1;
-				}else{
+				} else {
 					PaintSurface.drawType = 0;
 				}
 			}
@@ -206,9 +207,9 @@ public class WhiteBoardClient {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Poly";
-				if(isFill){
+				if (isFill) {
 					PaintSurface.drawType = 1;
-				}else{
+				} else {
 					PaintSurface.drawType = 0;
 				}
 			}
@@ -221,14 +222,14 @@ public class WhiteBoardClient {
 				PaintSurface.drawType = 0;
 			}
 		});
-		
+
 		btnOval.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				PaintSurface.shapeType = "Oval";
-				if(isFill){
+				if (isFill) {
 					PaintSurface.drawType = 1;
-				}else{
+				} else {
 					PaintSurface.drawType = 0;
 				}
 			}
@@ -259,16 +260,17 @@ public class WhiteBoardClient {
 
 		btnSend.addMouseListener(new MouseAdapter() {
 			@Override
-			public void mouseClicked(MouseEvent e){
-				try{
+			public void mouseClicked(MouseEvent e) {
+				try {
 					LocalDateTime date = LocalDateTime.now();
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-					server.sendMessage(client.getClientName()+"["+date.format(formatter)+"]: "+ "\n" + txtrInputchat.getText()+"\n");
+					server.sendMessage(client.getClientName() + "[" + date.format(formatter) + "]: " + "\n"
+							+ txtrInputchat.getText() + "\n");
 					txtrInputchat.setText("");
-				}catch(RemoteException re){
+				} catch (RemoteException re) {
 					re.printStackTrace();
 				}
-				
+
 			}
 		});
 
@@ -277,16 +279,16 @@ public class WhiteBoardClient {
 	public static JFrame getFrame() {
 		return frame;
 	}
-	
-	public static JTextArea getShowChat(){
+
+	public static JTextArea getShowChat() {
 		return txtrShowchat;
 	}
-	
-	public static DefaultListModel<String> getDlm(){
+
+	public static DefaultListModel<String> getDlm() {
 		return dlm;
 	}
-	
-	public static JList getJlist(){
+
+	public static JList getJlist() {
 		return list;
 	}
 
@@ -310,34 +312,29 @@ public class WhiteBoardClient {
 
 		frame.setTitle(this.client.getClientName());
 
-		
 		// set PaintSurface to the RemoteClient
 		paintSurface = new PaintSurface(client, server);
 		((RemoteClient) this.client).setPaint(paintSurface);
-		
-		
-		//this.paintSurface.add(imgLabel);
-		//this.server.loadImg(client);		
-		
+
+		// this.paintSurface.add(imgLabel);
+		// this.server.loadImg(client);
+
 		for (IRemoteWBItem remoteshape : server.getShapes()) {
-			this.paintSurface.addItem(remoteshape);			
-        }
-		
+			this.paintSurface.addItem(remoteshape);
+		}
+
 		imgLabel = new JLabel();
 		ImageIcon img = this.server.getImg();
-		if(img != null) {
+		if (img != null) {
 			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			imgLabel.setIcon(img);
 		}
-		
+
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
-		
-	
-		
-		
+
 		titlePanel = new JPanel();
 		frame.getContentPane().add(titlePanel, BorderLayout.NORTH);
-		
+
 		lblWhiteboard = new JLabel(this.server.getRoomName());
 		lblWhiteboard.setFont(new Font("Times New Roman", Font.BOLD, 40));
 		titlePanel.add(lblWhiteboard);
@@ -453,7 +450,6 @@ public class WhiteBoardClient {
 		gbc_btnColorChoosing.gridy = 14;
 		functionPanel.add(btnColorChoosing, gbc_btnColorChoosing);
 
-
 		lblOptions = new JLabel("Options");
 		lblOptions.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		GridBagConstraints gbc_lblOptions = new GridBagConstraints();
@@ -481,18 +477,18 @@ public class WhiteBoardClient {
 		textArea.setLineWrap(true);
 		textArea.setFont(new Font("Times New Roman", Font.BOLD, 10));
 		scrollPane.setViewportView(textArea);
-		
+
 		panel = new JPanel();
 		frame.getContentPane().add(panel, BorderLayout.EAST);
-		
+
 		panel.setPreferredSize(new Dimension(250, 1000));
 		panel.setLayout(null);
-		
+
 		lblClientList = new JLabel("Client List");
 		lblClientList.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		lblClientList.setBounds(87, 6, 92, 16);
 		panel.add(lblClientList);
-		
+
 		lblChat_1 = new JLabel("Chat");
 		lblChat_1.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		lblChat_1.setBounds(110, 270, 61, 16);
@@ -502,31 +498,31 @@ public class WhiteBoardClient {
 		lblInput.setFont(new Font("Times New Roman", Font.BOLD, 20));
 		lblInput.setBounds(6, 523, 61, 16);
 		panel.add(lblInput);
-		
+
 		btnSend = new JButton("Send");
 		btnSend.setBounds(75, 603, 117, 29);
 		panel.add(btnSend);
-		
+
 		JScrollPane scrollPane_1 = new JScrollPane();
 		scrollPane_1.setBounds(6, 298, 238, 214);
 		panel.add(scrollPane_1);
-		
+
 		txtrShowchat = new JTextArea();
 		scrollPane_1.setViewportView(txtrShowchat);
 		txtrShowchat.setLineWrap(true);
-		
+
 		JScrollPane scrollPane_2 = new JScrollPane();
 		scrollPane_2.setBounds(6, 551, 238, 34);
 		panel.add(scrollPane_2);
-		
+
 		txtrInputchat = new JTextArea();
 		scrollPane_2.setViewportView(txtrInputchat);
 		txtrInputchat.setLineWrap(true);
-		
+
 		scrollPane_3 = new JScrollPane();
 		scrollPane_3.setBounds(6, 34, 238, 214);
 		panel.add(scrollPane_3);
-		
+
 		dlm = new DefaultListModel<String>();
 		list = new JList();
 		list.setModel(dlm);
@@ -551,10 +547,9 @@ public class WhiteBoardClient {
 		menuBar.add(fileMenu);
 
 		frame.setJMenuBar(menuBar);
-		
+
 		// listen file operations
 		setUpEventListener();
-		
 
 	}
 
@@ -562,16 +557,14 @@ public class WhiteBoardClient {
 		PaintSizeDialog paintSizeDialog = new PaintSizeDialog();
 	}
 
-	private void showTextDir(){
+	private void showTextDir() {
 		TextDirDialog textDirDialog = new TextDirDialog();
 	}
-	
+
 	private void showEraserSize() {
 		EraserSizeDialog eraserSizeDialog = new EraserSizeDialog();
 	}
 
-	
-	// the method of new a file
 	public void newFile() {
 		frame.setTitle("");
 		int wantSave = JOptionPane.showConfirmDialog(null, "Do you want to save current file?", "Hints", 0);
@@ -589,11 +582,11 @@ public class WhiteBoardClient {
 				frame.getContentPane().remove(imgLabel);
 			}
 			paintSurface.shapes.removeAll(paintSurface.shapes);
+			paintSurface.removeAll();
 			paintSurface.repaint();
 		}
 	}
 
-	// Open the file
 	public void openFile() throws IOException {
 		// File file = null;
 		JFileChooser chooseFile = new JFileChooser();
@@ -631,24 +624,20 @@ public class WhiteBoardClient {
 			fileName = file.getName();
 			filePath = file.getPath();
 			frame.setTitle(fileName);
-			
-			paintSurface.shapes.clear();
+
+			paintSurface.removeAll();
+
+			if (isOpenFile == true)
+				frame.getContentPane().remove(imgLabel);
+			paintSurface.shapes.removeAll(paintSurface.shapes);
+
 			paintSurface.repaint();
 
-			/*FileInputStream fis = new FileInputStream(file);
-			BufferedImage img = ImageIO.read(fis);
-			Graphics g = img.getGraphics();
-			fis.close();*/
-			imgLabel = new JLabel();	
-			if (isOpenFile == true)
-				 frame.getContentPane().remove(imgLabel);
-			paintSurface.shapes.clear();
+			imgLabel = new JLabel();
 			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			isOpenFile = true;
-			ImageIcon img = new ImageIcon(filePath);
-			imgLabel.setIcon(img);
-			this.server.addImg(client, img);
-			
+			imgLabel.setIcon(new ImageIcon(filePath));
+
 			break;
 		case JFileChooser.CANCEL_OPTION:
 
@@ -663,24 +652,31 @@ public class WhiteBoardClient {
 
 	public void saveFile() throws IOException {
 		String name = frame.getTitle();
-		if (name.equals("")) { // save a new file
+		if (name.equals("") || name.equals(this.client.getClientName())) { // save as a new file
 			saveAsFile();
 		} else {
-	
-			if (isOpenFile == true)
-				frame.getContentPane().remove(imgLabel);
-			//paintSurface.shapes.removeAll(paintSurface.shapes);
-			paintSurface.repaint();
 
-			FileOutputStream fos = new FileOutputStream(filePath, true);
-			Component component = paintSurface;
-			BufferedImage imgNew = (BufferedImage) component.createImage(component.getWidth(), component.getHeight());
-			component.paint(imgNew.getGraphics());
+			// if (isOpenFile == true)
+			// frame.getContentPane().remove(imgLabel);
+			// paintSurface.shapes.removeAll(paintSurface.shapes);
+			// paintSurface.repaint();
+
+			FileOutputStream fos = new FileOutputStream(filePath);
+
+			BufferedImage imgNew = null;
+			try {
+				imgNew = new Robot().createScreenCapture(new Rectangle(paintSurface.getLocationOnScreen().x,
+						paintSurface.getLocationOnScreen().y, paintSurface.getWidth(), paintSurface.getHeight()));
+			} catch (AWTException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			ImageIO.write(imgNew, "jpg", bos);
 			bos.flush();
 			bos.close();
-			JOptionPane.showMessageDialog(null, "The file was successfully saved.", "Hints", 0);
+			JOptionPane.showMessageDialog(null, "The file was successfully saved.", "Hints",
+					JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -692,16 +688,18 @@ public class WhiteBoardClient {
 		filePath = saveDialog.getDirectory();
 
 		FileOutputStream fos = new FileOutputStream(filePath + fileName);
-
-		Component component = paintSurface;
-		BufferedImage bufferedImage = (BufferedImage) component.createImage(component.getWidth(),
-				component.getHeight());
-		component.paint(bufferedImage.getGraphics());
+		BufferedImage bufferedImage = null;
+		try {
+			bufferedImage = new Robot().createScreenCapture(new Rectangle(paintSurface.getLocationOnScreen().x,
+					paintSurface.getLocationOnScreen().y, paintSurface.getWidth(), paintSurface.getHeight()));
+		} catch (AWTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		BufferedOutputStream output = new BufferedOutputStream(fos);
-		
-		//String saveFormat = fileName.split(".")[1].toString();
-		
-		ImageIO.write(bufferedImage, "jpg", output);
+
+		String saveFormat = fileName.split("\\.")[1].toString();
+		ImageIO.write(bufferedImage, saveFormat, output);
 
 		output.flush();
 		output.close();

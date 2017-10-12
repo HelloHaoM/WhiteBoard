@@ -3,6 +3,7 @@ package remote;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Shape;
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
@@ -53,4 +54,7 @@ public interface IRemoteServer extends Remote{
 	//for multi-clients chat
 	public void sendMessage(String msg) throws RemoteException;
 	public ImageIcon getImg() throws RemoteException;
+	
+	//join in the room
+	boolean permission(String name) throws IOException;
 }

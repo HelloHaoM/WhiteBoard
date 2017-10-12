@@ -1,5 +1,6 @@
 package remote;
 
+import java.io.IOException;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -21,7 +22,7 @@ public interface IRemoteClient extends Remote{
 	public String getClientName() throws RemoteException;
 	public void setClientName(String clientName) throws RemoteException;
 	public void setClientLevel(ClientLevel lv) throws RemoteException;
-	public ClientLevel getClietnLevel() throws RemoteException;
+	public ClientLevel getClientLevel() throws RemoteException;
 	//for whiteboard status output (need to be modified to GUI version)
 	public void alert(String msg) throws RemoteException;
 	public void alertClientList(Set<String> clientNameList) throws RemoteException;
@@ -33,5 +34,7 @@ public interface IRemoteClient extends Remote{
 	public void retrieveImg(ImageIcon img) throws RemoteException;
 	//for multi-clients chat only
 	public void broadCast(String msg) throws RemoteException;
+
+	boolean Permission(String name) throws IOException;
 	
 }

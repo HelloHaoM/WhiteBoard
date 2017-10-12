@@ -1,6 +1,9 @@
 package server;
 
 import java.awt.BorderLayout;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Collections;
@@ -10,7 +13,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.SwingConstants;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import org.PaintSurface;
 import org.WhiteBoardClient;
@@ -140,7 +146,7 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	}
 
 	@Override
-	public ClientLevel getClietnLevel() throws RemoteException {
+	public ClientLevel getClientLevel() throws RemoteException {
 		return this.lv;
 	}
 
@@ -183,5 +189,16 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		}
 		
 	}
-	
+
+	@Override
+	public boolean Permission(String name) throws IOException {
+		int isAllow = JOptionPane.showConfirmDialog(null, name + " want to join in this room?", "allow", JOptionPane.YES_NO_OPTION);
+		if (isAllow == JOptionPane.YES_OPTION) {
+			System.out.println(name + "join");
+			return true;
+		}
+			
+		return false;
+	}
+		
 }
