@@ -44,9 +44,13 @@ public class ClientStart {
 	JLabel client;
 	JLabel room;
 	JLabel clientID;
+	JLabel serverPort;
+
 	JTextField nameClient;
 	JTextField nameRoom;
 	JTextField idClient;
+	JTextField port;
+
 	JButton confirmBtn;
 
 	JPanel jp1;
@@ -76,7 +80,14 @@ public class ClientStart {
 		nameRoom = new JTextField(10);
 		jp1.add(room);
 		jp1.add(nameRoom);
-
+		
+		serverPort = new JLabel("please input the sever port:         ");
+		serverPort.setFont(new Font("Arial", Font.PLAIN, 12));
+		port = new JTextField(12);
+		jp1.add(serverPort);
+		jp1.add(port);
+		
+		
 		level = new JLabel("Client Level: ");
 		level.setFont(new Font("Arial", Font.PLAIN, 12));
 		String str1[] = { "Manager", "User"};
@@ -99,6 +110,7 @@ public class ClientStart {
 				String idStr = idClient.getText();
 				String clientStr = nameClient.getText();
 				String roomStr = nameRoom.getText();
+				String portStr = port.getText();
 
 				// handle the exceptions of wrong inputs
 				// client ID
@@ -130,13 +142,20 @@ public class ClientStart {
 	                        JOptionPane.ERROR_MESSAGE);
 					System.exit(0);
 				}
-				
+				//server port
+				int portInt = Integer.parseInt(portStr);
+				if((portInt>65535) ||(portInt<1024) ) {
+					JOptionPane.showMessageDialog(null,
+	                        "Please input the valid server port (1024-65535)", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+				}
 
 				if (jcb_level.getSelectedIndex() == 0) { // Manager
-					String[] args = { idStr, clientStr, roomStr };
+					String[] args = { idStr, clientStr, roomStr, portStr };
 					ManagerClient.main(args);
 				} else if (jcb_level.getSelectedIndex() == 1) { // User (Guest)
-					String[] args = { clientStr, roomStr };
+					String[] args = { clientStr, roomStr, portStr };
 					GuestClient.main(args);
 				}
 
@@ -146,6 +165,7 @@ public class ClientStart {
 
 		frame.setSize(400, 300);
 		frame.setTitle("Client Start");
+		frame.setLocationRelativeTo(null);
 		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 

@@ -103,6 +103,22 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		}
 	}
 	
+	@Override
+	public void removeClient(String clientname) throws RemoteException {
+		if (clients.containsKey(clientname)) {	
+			this.clients.remove(clientname);
+			String msg = clientname + " removed from " + this.roomName;
+			System.out.println(msg);
+			this.updateAllClients(msg);
+			this.updateAllClientsWithClientName();
+			
+			clientNum--;
+
+		} else {
+			System.out.println(clientname + "not exist");
+		}
+	}
+	
 	// remove client and close the window
 	public void removeHints(IRemoteClient client) throws RemoteException{
 		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
@@ -135,8 +151,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 			this.updateAllClientsWithClientName();
 		} else {
 			client.alert("client name exist");
-			// JOptionPane.showMessageDialog(null, "The client name exist.", "Error",
-			// JOptionPane.ERROR_MESSAGE);
 		}
 
 	}
@@ -154,8 +168,6 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 			this.updateAllClients(msg);
 		} else {
 			client.alert("client name exist");
-			// JOptionPane.showMessageDialog(null, "The client name exist.", "Error",
-			// JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -354,13 +366,23 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		if (this.shapes.remove(item) == true) {
 			for (Entry<String, IRemoteClient> entry : this.clients.entrySet()) {
 				IRemoteClient remoteclient = entry.getValue();
-				remoteclient.alert(client.getClientName() + "removed a item");
+				remoteclient.alert(client.getClientName() + " removed a item");
 				remoteclient.removeShape(item);
 			}
 		} else {
 			client.alert("item remove failed");
 		}
 
+	}
+	
+	@Override
+	public void cleanAll() throws RemoteException{
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for (Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			remoteclient.alert(remoteclient.getClientName() + " Try clean canvas.");
+				remoteclient.CleanPaintSurface();
+		}
 	}
 
 	@Override

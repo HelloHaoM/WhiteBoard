@@ -1,4 +1,9 @@
 package server;
+import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.rmi.Naming;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -6,8 +11,13 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
+import client.ClientStart;
 import remote.IRemoteClient;
 import remote.IRemoteServer;
 import remote.IRemoteWBService;
@@ -23,10 +33,9 @@ import remote.IRemoteWBService;
  * @author tianzhangh
  */
 public class RMIServer {
-    public static final String SERVER_NAME = "Whiteboard";
-    public static final int SERVER_PORT = 1099;
-    
-    
+	
+	 public static String SERVER_NAME = "WhiteBoard";
+	    public static int SERVER_PORT = 0;
 
 	public static void main(String[] args)  {
 		
@@ -36,17 +45,15 @@ public class RMIServer {
 			//can receive incoming remote calls.
 			//Because RemoteMath extends UnicastRemoteObject, this
 			//is done automatically when the object is initialized.
-			
-
-			IRemoteWBService remoteWB = new RemoteWBService();
+	
+			IRemoteWBService remoteWB = new RemoteWBService(args[0], args[1]);
 			
             
             //Publish the remote object's stub in the registry
-            Registry registry = LocateRegistry.createRegistry(SERVER_PORT);          
+            Registry registry = LocateRegistry.createRegistry(Integer.parseInt(args[1]));          
             registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);            
             
             System.out.println("WhiteBoard-Management server ready");
-            
             JOptionPane.showMessageDialog(null, "WhiteBoard-Management server ready!", "Hints",
 					JOptionPane.INFORMATION_MESSAGE);
             

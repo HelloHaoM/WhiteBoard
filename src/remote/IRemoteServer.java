@@ -65,4 +65,6 @@ public interface IRemoteServer extends Remote{
 	public void removeHints(IRemoteClient client) throws RemoteException;
 	//public void closeWindow(IRemoteClient client) throws RemoteException;
 	void removeClient(IRemoteClient client) throws RemoteException;
+	void removeClient(String clientname) throws RemoteException;
+	void cleanAll() throws RemoteException;
 }

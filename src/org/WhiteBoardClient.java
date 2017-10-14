@@ -125,7 +125,7 @@ public class WhiteBoardClient {
 
 	private String fileName;
 	private String filePath;
-	private boolean isOpenFile = false;
+	private boolean isOpenFile;
 	public JLabel imgLabel;
 
 	private JMenu fileMenu;
@@ -144,6 +144,8 @@ public class WhiteBoardClient {
 	public WhiteBoardClient(IRemoteClient client, IRemoteServer server) throws RemoteException {
 		this.client = client;
 		this.server = server;
+		
+		isOpenFile = false;
 
 		initialize();
 
@@ -322,6 +324,7 @@ public class WhiteBoardClient {
 		for (IRemoteWBItem remoteshape : server.getShapes()) {
 			this.paintSurface.addItem(remoteshape);
 		}
+		
 		
 		this.server.loadImg(client);
 		imgLabel = new JLabel();
@@ -580,14 +583,40 @@ public class WhiteBoardClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		if (wantSave == 1) {
+			paintSurface.removeAll();
 			if (isOpenFile == true) {
 				frame.getContentPane().remove(imgLabel);
 			}
 			paintSurface.shapes.removeAll(paintSurface.shapes);
-			paintSurface.removeAll();
 			paintSurface.repaint();
+			
+			// Clean all canvas
+			try {
+				System.out.println("Try to clean all canvas.");
+				server.removeItemsByClient(client);
+				server.cleanAll();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (wantSave == 1) {
+			paintSurface.removeAll();
+			if (isOpenFile == true) {
+				frame.getContentPane().remove(imgLabel);
+			}
+			paintSurface.shapes.removeAll(paintSurface.shapes);
+			paintSurface.repaint();
+			
+			// Clean all canvas
+			try {
+				System.out.println("Try to clean all canvas.");
+				server.removeItemsByClient(client);
+				server.cleanAll();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 	}
 
@@ -629,23 +658,27 @@ public class WhiteBoardClient {
 			filePath = file.getPath();
 			frame.setTitle(fileName);
 
-			paintSurface.removeAll();
+			//paintSurface.removeAll();
 
 			if (isOpenFile == true)
 				frame.getContentPane().remove(imgLabel);
 			paintSurface.shapes.removeAll(paintSurface.shapes);
+			//paintSurface.repaint();
 
-			paintSurface.repaint();
-
-			imgLabel = new JLabel();
-			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
+			//imgLabel = new JLabel();
+			//frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			isOpenFile = true;
-			ImageIcon img = new ImageIcon(filePath); //add new
+			ImageIcon img = new ImageIcon(filePath); 
+			if (this.server.getImg()==null) {
+				frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
+			}
 			imgLabel.setIcon(img);
 			
-			server.addImg(client, img); //add new
-			
+			//avoid read from the buffer
+			img.getImage().flush();
 
+			//server.loadImg(client);
+			server.addImg(client, img); //add new
 			break;
 		case JFileChooser.CANCEL_OPTION:
 
@@ -685,6 +718,7 @@ public class WhiteBoardClient {
 			bos.close();
 			JOptionPane.showMessageDialog(null, "The file was successfully saved.", "Hints",
 					JOptionPane.INFORMATION_MESSAGE);
+			
 		}
 	}
 

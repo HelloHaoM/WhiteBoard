@@ -29,11 +29,13 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 	private static int roomNum;
 	private Map<String, IRemoteServer> roomMap;
 	private Registry registry;
-	public static final String SERVER_NAME = "Whiteboard";
-	public static final int SERVER_PORT = 1099;
+	public static  String SERVER_NAME = null;
+	public static int SERVER_PORT = 0;
 
-	protected RemoteWBService() throws RemoteException {
+	protected RemoteWBService(String servername, String serverport) throws RemoteException {
 		super();
+		SERVER_NAME = servername;
+		SERVER_PORT = Integer.parseInt(serverport);
 		roomNum = 0;
 		roomMap = new ConcurrentHashMap<String, IRemoteServer>();
 		registry = LocateRegistry.getRegistry("localhost");

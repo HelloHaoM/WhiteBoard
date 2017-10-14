@@ -39,5 +39,6 @@ public interface IRemoteClient extends Remote{
 
 	void removeDialog(String name) throws RemoteException;
 	void closeClient(String name) throws RemoteException;
+	void CleanPaintSurface() throws RemoteException;
 	
 }

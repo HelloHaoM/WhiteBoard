@@ -61,8 +61,10 @@ public class ManagerClient {
 				try {
 
 					// Retrieve the stub/proxy for the remote object from the registry
-					Registry registry = LocateRegistry.getRegistry("localhost");
-
+					//Registry registry = LocateRegistry.getRegistry("localhost");
+					int port = Integer.parseInt(args[3]);
+					Registry registry = LocateRegistry.getRegistry(port);
+					
 					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 
 					// String roomname = "whiteboard1";

@@ -171,6 +171,13 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	}
 	
 	@Override
+	public void CleanPaintSurface() throws RemoteException{
+		this.paint.removeAll();
+		//this.removeShape(shape);
+		this.paint.repaint();
+	}
+	
+	@Override
 	public void broadCast(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
 		if(whiteBoardClient != null){
