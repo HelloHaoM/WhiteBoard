@@ -189,16 +189,30 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		}
 		
 	}
+	
+	@Override
+	public void removeDialog(String name) throws RemoteException {
+		JOptionPane.showMessageDialog(null, "You have been removed. \n Or the manager closed the room.", "Error",
+				JOptionPane.ERROR_MESSAGE);
+		//this.whiteBoardClient.close();
+		this.whiteBoardClient.getFrame().dispose();
+		//this.whiteBoardClient.getDlm().removeElement(name);
+	}
+	
+	@Override
+	public void closeClient(String name) throws RemoteException {
+		this.whiteBoardClient.getFrame().dispose();
+	}
 
 	@Override
 	public boolean Permission(String name) throws IOException {
 		int isAllow = JOptionPane.showConfirmDialog(null, name + " want to join in this room?", "allow", JOptionPane.YES_NO_OPTION);
 		if (isAllow == JOptionPane.YES_OPTION) {
-			System.out.println(name + "join");
+			System.out.println(name + " join");
 			return true;
-		}
-			
+		}		
 		return false;
 	}
+	
 		
 }

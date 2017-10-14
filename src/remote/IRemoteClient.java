@@ -36,5 +36,8 @@ public interface IRemoteClient extends Remote{
 	public void broadCast(String msg) throws RemoteException;
 
 	boolean Permission(String name) throws IOException;
+
+	void removeDialog(String name) throws RemoteException;
+	void closeClient(String name) throws RemoteException;
 	
 }

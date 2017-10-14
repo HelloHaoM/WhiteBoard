@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import javax.swing.JOptionPane;
+
 import remote.IRemoteClient;
 import remote.IRemoteServer;
 import remote.IRemoteWBService;
@@ -44,6 +46,9 @@ public class RMIServer {
             registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);            
             
             System.out.println("WhiteBoard-Management server ready");
+            
+            JOptionPane.showMessageDialog(null, "WhiteBoard-Management server ready!", "Hints",
+					JOptionPane.INFORMATION_MESSAGE);
             
             //The server will continue running as long as there are remote objects exported into
             //the RMI runtime, to remove remote objects from the

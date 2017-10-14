@@ -7,6 +7,10 @@ import java.awt.Font;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -54,12 +58,13 @@ public class ManagerClient {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+
 					// Retrieve the stub/proxy for the remote object from the registry
 					Registry registry = LocateRegistry.getRegistry("localhost");
 
 					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 
-					//String roomname = "whiteboard1";
+					// String roomname = "whiteboard1";
 					String roomname = args[2];
 					// IRemoteClient manager = new RemoteClient(0, "tianzhangh");
 					IRemoteClient manager = new RemoteClient(Integer.parseInt(args[0]), args[1]);
@@ -69,6 +74,9 @@ public class ManagerClient {
 					IRemoteServer remoteserver = remoteWB.createRoom(manager, roomname);
 					if (remoteserver != null) {
 						remoteserver.setManager(manager);
+					} else {
+						JOptionPane.showMessageDialog(null, "Room name exist.", "Error", JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
 					}
 
 					// add manager
@@ -87,33 +95,93 @@ public class ManagerClient {
 					}
 
 					((RemoteClient) manager).setWhiteBoardClient(window);
-					// Synchoronize the file 
-					
 
+					// remove the client from the list
 					window.getJlist().addListSelectionListener(new ListSelectionListener() {
 						boolean flag = false;
 
 						public void valueChanged(ListSelectionEvent e) {
-							if ((e.getValueIsAdjusting() == false) && (flag == false)) {
-								flag = true;
-								int isRemove = JOptionPane.showConfirmDialog(null,
-										"Do you want to kick out this client?", "Confirm", JOptionPane.YES_NO_OPTION);
-								if (isRemove == JOptionPane.YES_OPTION) {
-									String name = (String) window.getJlist().getSelectedValue();
-									window.getDlm().removeElement(name);
-									try {
-										remoteserver.removeClient(name);
-										manager.alertClientList(remoteserver.getClientNameList());
-										
-									} catch (RemoteException e1) {
-										e1.printStackTrace();
+							String name = (String) window.getJlist().getSelectedValue();
+							if (name != null) {
+								// the manager should not remove himself/herself.
+								if (!name.equals(args[1])) {
+									if ((e.getValueIsAdjusting() == false) && (flag == false)) {
+										flag = true;
+										int isRemove = JOptionPane.showConfirmDialog(null,
+												"Do you want to kick out this client?", "Confirm",
+												JOptionPane.YES_NO_OPTION);
+										if (isRemove == JOptionPane.YES_OPTION) {
+
+											window.getDlm().removeElement(name);
+											try {
+												remoteserver.removeClient(remoteserver.getClient(name));
+												remoteserver.removeRequest(manager, name);
+												manager.alertClientList(remoteserver.getClientNameList());
+												remoteserver.updateAllClientsWithClientName();
+
+												// remoteserver.closeWindow(remoteserver.getClient(name));
+
+											} catch (RemoteException e1) {
+												e1.printStackTrace();
+											}
+										}
+										flag = false;
 									}
+								} else {
+									int op = JOptionPane.showConfirmDialog(null,
+											"You are not allow to remove yourself. \n"
+													+ "Do you want to close this room?  ",
+											"Warning", JOptionPane.YES_NO_OPTION);
+									if (op == JOptionPane.YES_OPTION) {
+										try {
+											Set<String> temp = remoteserver.getClientNameList();
+											remoteWB.removeRoom(manager, roomname);
+											for (String nameWillRemove : temp) {
+												if (!nameWillRemove.equals(manager.getClientName()))
+													remoteserver.getClient(nameWillRemove).removeDialog(nameWillRemove); 
+											}
+										} catch (RemoteException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+										window.getFrame().dispose();
+										System.exit(0);
+									}
+
 								}
-								flag = false;
-								
 							}
 						}
 					});
+
+					// remove the room
+					window.getFrame().addWindowListener(new WindowAdapter() {
+						public void windowClosing(WindowEvent we) {
+							try {
+								remoteWB.removeRoom(manager, roomname);
+								int i = JOptionPane.showConfirmDialog(null, "Room will be removed.", "Warning",
+										JOptionPane.YES_NO_OPTION);
+								if (i == JOptionPane.YES_OPTION) {
+									try {
+										Set<String> temp = remoteserver.getClientNameList();
+										remoteWB.removeRoom(manager, roomname);
+										for (String nameWillRemove : temp) {
+											if (!nameWillRemove.equals(manager.getClientName()))
+												remoteserver.getClient(nameWillRemove).removeDialog(nameWillRemove); 
+										}
+									} catch (RemoteException e1) {
+										// TODO Auto-generated catch block
+										e1.printStackTrace();
+									}
+									window.getFrame().dispose();
+									System.exit(0);
+								}
+							} catch (RemoteException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					});
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}

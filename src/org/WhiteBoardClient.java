@@ -28,6 +28,7 @@ import javax.swing.JFileChooser;
 
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Rectangle;
@@ -39,6 +40,8 @@ import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -315,20 +318,20 @@ public class WhiteBoardClient {
 		// set PaintSurface to the RemoteClient
 		paintSurface = new PaintSurface(client, server);
 		((RemoteClient) this.client).setPaint(paintSurface);
-
-		// this.paintSurface.add(imgLabel);
-		// this.server.loadImg(client);
-
+		
 		for (IRemoteWBItem remoteshape : server.getShapes()) {
 			this.paintSurface.addItem(remoteshape);
 		}
-
+		
+		this.server.loadImg(client);
 		imgLabel = new JLabel();
 		ImageIcon img = this.server.getImg();
 		if (img != null) {
 			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			imgLabel.setIcon(img);
 		}
+		this.paintSurface.add(imgLabel);
+		
 
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
 
@@ -526,6 +529,7 @@ public class WhiteBoardClient {
 		dlm = new DefaultListModel<String>();
 		list = new JList();
 		list.setModel(dlm);
+		//this.server.updateList(client);
 		scrollPane_3.setViewportView(list);
 
 		fileMenu = new JMenu("File");
@@ -636,7 +640,11 @@ public class WhiteBoardClient {
 			imgLabel = new JLabel();
 			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			isOpenFile = true;
-			imgLabel.setIcon(new ImageIcon(filePath));
+			ImageIcon img = new ImageIcon(filePath); //add new
+			imgLabel.setIcon(img);
+			
+			server.addImg(client, img); //add new
+			
 
 			break;
 		case JFileChooser.CANCEL_OPTION:
@@ -707,7 +715,7 @@ public class WhiteBoardClient {
 		frame.setTitle(fileName);
 
 	}
-
+	
 	private void setUpEventListener() {
 		newMenuItem.addActionListener(new ActionListener() {
 			@Override

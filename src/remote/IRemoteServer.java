@@ -23,7 +23,7 @@ public interface IRemoteServer extends Remote{
 	public String getRoomName() throws RemoteException;
 	public void addClient(IRemoteClient client) throws RemoteException;
 	public void addClient(String clientname, IRemoteClient client) throws RemoteException;
-	public void removeClient(String clientname) throws RemoteException;
+	//public void removeClient(String clientname) throws RemoteException;
 	public Set<String> getClientNameList() throws RemoteException;
 	public IRemoteClient getClient(String clientname) throws RemoteException;
 	public int getClientId(String clientname) throws RemoteException;
@@ -53,8 +53,16 @@ public interface IRemoteServer extends Remote{
 	
 	//for multi-clients chat
 	public void sendMessage(String msg) throws RemoteException;
+	
 	public ImageIcon getImg() throws RemoteException;
 	
 	//join in the room
 	boolean permission(String name) throws IOException;
+	
+	//update client list
+	void updateList(IRemoteClient client) throws RemoteException;
+	// remove the client
+	public void removeHints(IRemoteClient client) throws RemoteException;
+	//public void closeWindow(IRemoteClient client) throws RemoteException;
+	void removeClient(IRemoteClient client) throws RemoteException;
 }

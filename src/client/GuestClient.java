@@ -1,14 +1,18 @@
 package client;
 
 import java.awt.EventQueue;
+import java.awt.HeadlessException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 
 import org.WhiteBoardClient;
@@ -29,6 +33,11 @@ public class GuestClient {
 	/**
 	 * Launch the application.
 	 */
+	static IRemoteClient remoteClient = null;
+	static IRemoteServer remoteserver = null;
+	static WhiteBoardClient window = null;
+	
+	
 	public static void main(String[] args) {
 		try {
 			UIManager.setLookAndFeel("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel");
@@ -39,7 +48,7 @@ public class GuestClient {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					IRemoteClient remoteClient = new RemoteClient();
+					remoteClient = new RemoteClient();
 					//remoteClient.setClientName("client456");
 					remoteClient.setClientName(args[0]);
 					remoteClient.setClientLevel(RemoteClient.ClientLevel.USER);
@@ -51,14 +60,26 @@ public class GuestClient {
 
 					//String roomname = "whiteboard1";
 					String roomname = args[1];
-					IRemoteServer remoteserver = remoteWB.getRoom(remoteClient, roomname);
+					remoteserver = remoteWB.getRoom(remoteClient, roomname);
 
+					//room does not exist
+					if(remoteserver==null) {
+						JOptionPane.showMessageDialog(null, "The room does not exist", "Error", JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
+					
 					System.out.println("Room: " + roomname);
 					System.out.println("Manager: " + remoteserver.getManager().getClientName());
 
-					WhiteBoardClient window = new WhiteBoardClient(remoteClient, remoteserver);
+					window = new WhiteBoardClient(remoteClient, remoteserver);
 					window.frame.setVisible(false);
 					
+					//name exist
+					if( remoteserver.getClientNameList().contains(args[0])) {
+						JOptionPane.showMessageDialog(null, "This room already has a manager.", "Error", JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
+		
 					//remoteserver.requestAdd(remoteClient.getClientName(), remoteClient);
 
 					boolean join = remoteserver.permission(remoteClient.getClientName());
@@ -69,7 +90,7 @@ public class GuestClient {
 						remoteserver.addClient(remoteClient);
 						System.out.println("Client No. :" + remoteClient.getClientId());
 						System.out.println("Client UserName: " + remoteClient.getClientName());
-						
+
 						Set<String> nameList = remoteserver.getClientNameList();
 						Iterator<String> it = nameList.iterator();
 						while (it.hasNext()) {
@@ -79,17 +100,43 @@ public class GuestClient {
 							window.getJlist().setModel(window.getDlm());
 						}
 
-						((RemoteClient) remoteClient).setWhiteBoardClient(window);
-						// Synchoronize the file 
-						
+						((RemoteClient) remoteClient).setWhiteBoardClient(window);		
+					}else {
+						JOptionPane.showMessageDialog(null, "Your request has benn denied.", "Error", JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
 					}
-
-					
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+
 			}
 		});
-
+		
+		while(remoteserver != null) {
+			
+            try {
+            	Set<String> clientNameList = remoteserver.getClientNameList();
+            	remoteClient.alertClientList(clientNameList);
+				if(!remoteserver.getClientNameList().contains(args[0])) {
+				    JOptionPane.showMessageDialog(null, "You have been kicked out!", "Error", JOptionPane.ERROR_MESSAGE);
+				    window.getFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				    System.exit(0);
+				}
+				
+			} catch (HeadlessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            try {
+				TimeUnit.SECONDS.sleep(15);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+        }
+		
 	}
 }

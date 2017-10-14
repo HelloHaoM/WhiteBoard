@@ -35,8 +35,8 @@ import remote.IRemoteServer;
 import remote.IRemoteWBService;
 import server.RemoteClient;
 
-public class ClientStart{
-	
+public class ClientStart {
+
 	private JFrame frame;
 
 	JComboBox jcb_level;
@@ -52,8 +52,8 @@ public class ClientStart{
 	JPanel jp1;
 	JPanel jp2;
 
-	public ClientStart(){
-		
+	public ClientStart() {
+
 		frame = new JFrame();
 
 		jp1 = new JPanel();
@@ -79,7 +79,7 @@ public class ClientStart{
 
 		level = new JLabel("Client Level: ");
 		level.setFont(new Font("Arial", Font.PLAIN, 12));
-		String str1[] = { "Manager", "User", "Visitor" };
+		String str1[] = { "Manager", "User"};
 		jcb_level = new JComboBox(str1);
 		jp1.add(level);
 		jp1.add(jcb_level);
@@ -100,22 +100,47 @@ public class ClientStart{
 				String clientStr = nameClient.getText();
 				String roomStr = nameRoom.getText();
 
-				if (jcb_level.getSelectedIndex() == 0) { // Manager
-					String[] args = {idStr, clientStr, roomStr};
-					ManagerClient.main(args);
-	
-				} else if (jcb_level.getSelectedIndex() == 1) { // User (Guest)
-					String[] args = {clientStr, roomStr};
-					GuestClient.main(args);
+				// handle the exceptions of wrong inputs
+				// client ID
+				for (int i = 0; i < idStr.length(); i++) {
+					if (idStr.charAt(i) < 48 || idStr.charAt(i) > 57) {
+						JOptionPane.showMessageDialog(null,
+		                        "The client ID must be the number", "Error",
+		                        JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
+				}
+				// client name
+				if (clientStr.length() == 0) {
+					JOptionPane.showMessageDialog(null,
+	                        "Please input the valid client name", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+				}
+				// room name
+				if (roomStr.length() == 0) {
+					JOptionPane.showMessageDialog(null,
+	                        "Please input the valid room name", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
 				}
 				
+
+				if (jcb_level.getSelectedIndex() == 0) { // Manager
+					String[] args = { idStr, clientStr, roomStr };
+					ManagerClient.main(args);
+				} else if (jcb_level.getSelectedIndex() == 1) { // User (Guest)
+					String[] args = { clientStr, roomStr };
+					GuestClient.main(args);
+				}
+
 				frame.dispose();
 			}
 		});
 
 		frame.setSize(400, 300);
 		frame.setTitle("Client Start");
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		// frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 
 	public static void main(String[] args) {

@@ -82,16 +82,34 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 	}
 
 	@Override
-	public void removeClient(String clientname) throws RemoteException {
+	public void removeClient(IRemoteClient client) throws RemoteException {
 		// TODO Auto-generated method stub
+		String clientname = client.getClientName();
 		if (clients.containsKey(clientname)) {
+			//client.closeClient(clientname);
+			client.removeDialog(client.getClientName());
+			
 			this.clients.remove(clientname);
 			String msg = clientname + " removed from " + this.roomName;
 			System.out.println(msg);
 			this.updateAllClients(msg);
+			this.updateAllClientsWithClientName();
+			
 			clientNum--;
+
 		} else {
 			System.out.println(clientname + "not exist");
+		}
+	}
+	
+	// remove client and close the window
+	public void removeHints(IRemoteClient client) throws RemoteException{
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for (Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			if (!remoteclient.getClientName().equalsIgnoreCase(client.getClientName())) {
+				//
+			}
 		}
 	}
 
@@ -115,7 +133,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 			this.updateAllClients(msg);
 			this.updateAllClientsWithClientName();
 		} else {
-			client.alert("client name exit");
+			client.alert("client name exist");
+			// JOptionPane.showMessageDialog(null, "The client name exist.", "Error",
+			// JOptionPane.ERROR_MESSAGE);
 		}
 
 	}
@@ -133,7 +153,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 			this.updateAllClients(msg);
 		} else {
 			client.alert("client name exist");
-			//JOptionPane.showMessageDialog(null, "", "Wrong", JOptionPane.ERROR_MESSAGE);
+			// JOptionPane.showMessageDialog(null, "The client name exist.", "Error",
+			// JOptionPane.ERROR_MESSAGE);
 		}
 	}
 
@@ -256,7 +277,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 				this.requestClients.remove(clientname);
 				manager.alert(clientname + " request has been denied");
 			} else {
-				manager.alert(clientname + "does not exist");
+				manager.alert(clientname + " does not exist");
 			}
 		} else {
 			manager.alert("unauthorized");
@@ -394,6 +415,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		}
 	}
 
+	// synchronize the image file
 	@Override
 	public void loadImg(IRemoteClient client) throws RemoteException {
 		client.retrieveImg(img);
@@ -416,9 +438,21 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		}
 	}
 
+	@Override
+	public void updateList(IRemoteClient client) throws RemoteException {
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for (Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			if (!remoteclient.getClientName().equalsIgnoreCase(client.getClientName())) {
+				remoteclient.alertClientList(this.getClientNameList());
+			}
+		}
+	}
+
 	// join
 	@Override
 	public boolean permission(String name) throws IOException {
 		return this.getClients().entrySet().iterator().next().getValue().Permission(name);
 	}
+
 }
