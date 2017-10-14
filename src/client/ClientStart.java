@@ -102,6 +102,12 @@ public class ClientStart {
 
 				// handle the exceptions of wrong inputs
 				// client ID
+				if(idStr.length() == 0 && jcb_level.getSelectedIndex() == 0) {
+					JOptionPane.showMessageDialog(null,
+	                        "The client ID must be the number", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+				}
 				for (int i = 0; i < idStr.length(); i++) {
 					if (idStr.charAt(i) < 48 || idStr.charAt(i) > 57) {
 						JOptionPane.showMessageDialog(null,

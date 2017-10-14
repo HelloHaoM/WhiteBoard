@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -49,7 +50,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		requestNum = 0;
 		// initialize added clients and requesting clients map
 		this.clients = new ConcurrentHashMap<String, IRemoteClient>();
-		this.shapes = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem, Boolean>());
+		this.shapes = Collections.newSetFromMap(Collections.synchronizedMap(new LinkedHashMap<IRemoteWBItem, Boolean>())); 
 		this.requestClients = new ConcurrentHashMap<String, IRemoteClient>();
 		this.roomName = roomName;
 
@@ -316,9 +317,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
 		for (Entry<String, IRemoteClient> entry : clientset) {
 			IRemoteClient remoteclient = entry.getValue();
-			if (remoteclient.getClientName().equalsIgnoreCase(client.getClientName()) == false) {
+			//if (remoteclient.getClientName().equalsIgnoreCase(client.getClientName()) == false) {
 				remoteclient.retrieveShape(itemShape);
-			}
+			//}
 			remoteclient.alert("new shape added from " + client.getClientName());
 		}
 	}

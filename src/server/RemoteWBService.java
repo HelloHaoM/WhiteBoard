@@ -1,6 +1,9 @@
 package server;
 
+import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -72,7 +75,7 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 	}
 
 	@Override
-	public boolean removeRoom(IRemoteClient manager, String roomname) throws RemoteException {
+	public boolean removeRoom(IRemoteClient manager, String roomname) throws RemoteException, NotBoundException {
 		if (this.checkLv(manager) == false) {
 			manager.alert("unauthorized");
 			return false;
@@ -87,7 +90,11 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 			if (manager.getClientName().equalsIgnoreCase(managerName)) {
 				manager.alert("room has been removed");
 				roomserver.updateAllClients("room has been removed by manager");
+				System.out.println("room has been removed by manager");
 				roomMap.remove(roomname);
+				
+				registry.unbind(roomname);
+				UnicastRemoteObject.unexportObject(roomserver, true);
 				return true;
 			} else {
 				// not the manager who created this room
