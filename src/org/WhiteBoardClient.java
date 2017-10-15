@@ -126,7 +126,7 @@ public class WhiteBoardClient {
 	private String fileName;
 	private String filePath;
 	private boolean isOpenFile;
-	public JLabel imgLabel;
+	public static JLabel imgLabel;
 
 	private JMenu fileMenu;
 	private JMenuItem newMenuItem;
@@ -295,6 +295,10 @@ public class WhiteBoardClient {
 
 	public static JList getJlist() {
 		return list;
+	}
+	
+	public static JLabel getLabel() {
+		return imgLabel;
 	}
 
 	public void showOptions(String msg) {
@@ -583,17 +587,16 @@ public class WhiteBoardClient {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			/*
 			paintSurface.removeAll();
 			if (isOpenFile == true) {
 				frame.getContentPane().remove(imgLabel);
 			}
 			paintSurface.shapes.removeAll(paintSurface.shapes);
-			paintSurface.repaint();
+			paintSurface.repaint();*/
 			
 			// Clean all canvas
 			try {
-				System.out.println("Try to clean all canvas.");
-				server.removeItemsByClient(client);
 				server.cleanAll();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -601,17 +604,9 @@ public class WhiteBoardClient {
 			}
 		}
 		if (wantSave == 1) {
-			paintSurface.removeAll();
-			if (isOpenFile == true) {
-				frame.getContentPane().remove(imgLabel);
-			}
-			paintSurface.shapes.removeAll(paintSurface.shapes);
-			paintSurface.repaint();
 			
 			// Clean all canvas
 			try {
-				System.out.println("Try to clean all canvas.");
-				server.removeItemsByClient(client);
 				server.cleanAll();
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -659,26 +654,25 @@ public class WhiteBoardClient {
 			frame.setTitle(fileName);
 
 			//paintSurface.removeAll();
+			
+			// Clean all canvas
+			server.cleanAll();
 
-			if (isOpenFile == true)
-				frame.getContentPane().remove(imgLabel);
-			paintSurface.shapes.removeAll(paintSurface.shapes);
-			//paintSurface.repaint();
-
+			//this.server.loadImg(client);
 			//imgLabel = new JLabel();
 			//frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			isOpenFile = true;
 			ImageIcon img = new ImageIcon(filePath); 
-			if (this.server.getImg()==null) {
+			if (this.server.getImg()== null) {
 				frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			}
 			imgLabel.setIcon(img);
-			
-			//avoid read from the buffer
-			img.getImage().flush();
 
 			//server.loadImg(client);
 			server.addImg(client, img); //add new
+			
+			//avoid read from the buffer
+			img.getImage().flush();
 			break;
 		case JFileChooser.CANCEL_OPTION:
 

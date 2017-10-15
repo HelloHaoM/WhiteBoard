@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -380,8 +381,9 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
 		for (Entry<String, IRemoteClient> entry : clientset) {
 			IRemoteClient remoteclient = entry.getValue();
-			remoteclient.alert(remoteclient.getClientName() + " Try clean canvas.");
-				remoteclient.CleanPaintSurface();
+			remoteclient.alert(remoteclient.getClientName() + " Try to clean the canva.");
+			//this.removeItemsByClient(remoteclient);
+			remoteclient.CleanPaintSurface();
 		}
 	}
 
@@ -390,6 +392,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		return this.shapes;
 	}
 
+	
 	@Override
 	public void removeItemsByClient(IRemoteClient client) throws RemoteException {
 		for (IRemoteWBItem item : this.shapes) {
@@ -397,8 +400,11 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 				this.shapes.remove(item);
 			}
 		}
+		this.removeAllItems();
 		updateGlobalShapes();
 	}
+	
+	
 
 	@Override
 	public void removeAllItems() throws RemoteException {

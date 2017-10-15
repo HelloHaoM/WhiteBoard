@@ -54,7 +54,7 @@ public class RMIServer {
             registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);            
             
             System.out.println("WhiteBoard-Management server ready");
-            JOptionPane.showMessageDialog(null, "WhiteBoard-Management server ready!", "Hints",
+            JOptionPane.showMessageDialog(null, args[0] + " server ready!", "Hints",
 					JOptionPane.INFORMATION_MESSAGE);
             
             //The server will continue running as long as there are remote objects exported into

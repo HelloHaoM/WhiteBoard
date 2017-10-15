@@ -425,4 +425,12 @@ public class PaintSurface extends JComponent{
 		TextDialog textDialog = new TextDialog();
 		
 	}
+	
+	public ArrayList<IRemoteWBItem> getShpaeList(){
+		return this.shapes;
+	}
+	
+	public void cleanList() {
+		this.shapes.clear();
+	}
 }

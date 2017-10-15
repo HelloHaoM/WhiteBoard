@@ -38,7 +38,8 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 		SERVER_PORT = Integer.parseInt(serverport);
 		roomNum = 0;
 		roomMap = new ConcurrentHashMap<String, IRemoteServer>();
-		registry = LocateRegistry.getRegistry("localhost");
+		//registry = LocateRegistry.getRegistry("localhost");
+		registry = LocateRegistry.getRegistry(SERVER_PORT);
 	}
 
 	@Override

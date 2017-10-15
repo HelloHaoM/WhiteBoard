@@ -172,11 +172,20 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	
 	@Override
 	public void CleanPaintSurface() throws RemoteException{
-		this.paint.removeAll();
-		//this.removeShape(shape);
+		this.shapes.removeAll(this.paint.getShpaeList());
+		this.paint.cleanList();
+		//this.whiteBoardClient.frame.getContentPane().removeAll();
+		JLabel imgLabel = this.whiteBoardClient.getLabel();
+		this.whiteBoardClient.frame.getContentPane().remove(imgLabel);
+		
+		/*JLabel imgLabelNew = new JLabel();
+		imgLabel.setOpaque(false);
+		this.whiteBoardClient.frame.getContentPane().add(imgLabelNew);*/
+		
 		this.paint.repaint();
-	}
 	
+	}
+
 	@Override
 	public void broadCast(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
@@ -190,7 +199,7 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 		if(img != null) {
 			System.out.println("retrieve img");
 			JLabel imgLabel = new JLabel();
-			imgLabel.setOpaque(false);
+			//imgLabel.setOpaque(false);
 			this.whiteBoardClient.getFrame().getContentPane().add(imgLabel);
 			imgLabel.setIcon(img);
 		}
@@ -201,9 +210,8 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	public void removeDialog(String name) throws RemoteException {
 		JOptionPane.showMessageDialog(null, "You have been removed. \n Or the manager closed the room.", "Error",
 				JOptionPane.ERROR_MESSAGE);
-		//this.whiteBoardClient.close();
 		this.whiteBoardClient.getFrame().dispose();
-		//this.whiteBoardClient.getDlm().removeElement(name);
+		System.exit(0); //add
 	}
 	
 	@Override

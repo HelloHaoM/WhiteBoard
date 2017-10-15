@@ -4,6 +4,7 @@ import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.rmi.ConnectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -55,12 +56,18 @@ public class GuestClient {
 					remoteClient.setClientLevel(RemoteClient.ClientLevel.USER);
 
 					// Retrieve the stub/proxy for the remote object from the registry
-					//Registry registry = LocateRegistry.getRegistry("localhost");
-					int port = Integer.parseInt(args[2]); 
+					// Registry registry = LocateRegistry.getRegistry("localhost");
+					int port = Integer.parseInt(args[2]);
 					Registry registry = LocateRegistry.getRegistry(port);
 
-					
-					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
+					IRemoteWBService remoteWB = null;
+					try {
+						remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
+					} catch (ConnectException e) {
+						JOptionPane.showMessageDialog(null, "Connection refused. \n Please check your server port.", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
 
 					// String roomname = "whiteboard1";
 					String roomname = args[1];
@@ -92,6 +99,8 @@ public class GuestClient {
 					if (join) {
 
 						window.frame.setVisible(true);
+						// client cannot do file operation
+						window.frame.getJMenuBar().setVisible(false);
 						// add some clients for test
 						remoteserver.addClient(remoteClient);
 						System.out.println("Client No. :" + remoteClient.getClientId());
@@ -122,7 +131,7 @@ public class GuestClient {
 
 							if (i == JOptionPane.YES_OPTION) {
 								try {
-									remoteserver.removeClient(remoteClient.getClientName()); 
+									remoteserver.removeClient(remoteClient.getClientName());
 								} catch (RemoteException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
