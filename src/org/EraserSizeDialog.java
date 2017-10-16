@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.net.URI;
+import java.net.URL;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -20,14 +22,13 @@ public class EraserSizeDialog {
 	}
 	
 	private void init(){
-		String FileDir = System.getProperty("user.dir");
 		jDialog = new JDialog();
 		jDialog.setBounds(100, 100, 200, 80);
 		jDialog.setTitle("Eraser Size");
 		jDialog.getContentPane().setLayout(new GridLayout(1, 3));
 		JButton btnSize1 = new JButton();
-		String smallDir = FileDir + "/Img/eraserSmall.png";
-		Icon small = new ImageIcon(smallDir);
+		URL urlSmall = this.getClass().getResource("/eraserSmall.png");
+		Icon small = new ImageIcon(urlSmall);
 		btnSize1.setIcon(small);
 		btnSize1.setBackground(Color.white);
 		jDialog.getContentPane().add(btnSize1);
@@ -39,8 +40,8 @@ public class EraserSizeDialog {
 			}
 		});
 		JButton btnSize2 = new JButton();
-		String midDir = FileDir + "/Img/eraserMid.png";
-		Icon mid = new ImageIcon(midDir);
+		URL urlMid = this.getClass().getResource("/eraserMid.png");
+		Icon mid = new ImageIcon(urlMid);
 		btnSize2.setIcon(mid);
 		btnSize2.setBackground(Color.white);
 		jDialog.getContentPane().add(btnSize2);
@@ -53,8 +54,8 @@ public class EraserSizeDialog {
 		});
 		
 		JButton btnSize3 = new JButton();
-		String bigDir = FileDir + "/Img/eraserBig.png";
-		Icon big = new ImageIcon(bigDir);
+		URL urlBig = this.getClass().getResource("/eraserBig.png");
+		Icon big = new ImageIcon(urlBig);
 		btnSize3.setIcon(big);
 		btnSize3.setBackground(Color.white);
 		jDialog.getContentPane().add(btnSize3);
