@@ -169,15 +169,6 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	public void CleanPaintSurface() throws RemoteException {
 		// s.removeAll(this.paint.getShpaeList());
 		this.paint.cleanList();
-		// this.whiteBoardClient.frame.getContentPane().removeAll();
-		JLabel imgLabel = this.whiteBoardClient.getLabel();
-		this.whiteBoardClient.frame.getContentPane().remove(imgLabel);
-
-		/*
-		 * JLabel imgLabelNew = new JLabel(); imgLabel.setOpaque(false);
-		 * this.whiteBoardClient.frame.getContentPane().add(imgLabelNew);
-		 */
-
 		this.paint.repaint();
 
 	}

@@ -45,7 +45,7 @@ public interface IRemoteServer extends Remote{
 	public void addShape(IRemoteClient client, Shape shape, Color colour,int Drawtype ,int Stroke) throws RemoteException;
 	public void addText(IRemoteClient client, Shape shape, String text, Color colour,int Drawtype ,int Stroke, Point Pos) throws RemoteException;
 	public void addImg(IRemoteClient client, ImageIcon img) throws RemoteException;
-	public void loadImg(IRemoteClient client) throws RemoteException;
+	public void addImage(IRemoteClient client, ImageIcon img, int Drawtype) throws RemoteException;
 	public Set<IRemoteWBItem> getShapes() throws RemoteException;
 	public void removeItemsByClient(IRemoteClient client) throws RemoteException;
 	public void removeItem(IRemoteClient client, IRemoteWBItem item) throws RemoteException;
@@ -68,4 +68,5 @@ public interface IRemoteServer extends Remote{
 	void removeClient(String clientname) throws RemoteException;
 	void cleanAll() throws RemoteException;
 	void removeAllClient(IRemoteClient client) throws RemoteException;
+	
 }

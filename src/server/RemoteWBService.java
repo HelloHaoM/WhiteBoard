@@ -45,7 +45,6 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 		roomMap = new ConcurrentHashMap<String, IRemoteServer>();
 		//registry = LocateRegistry.getRegistry("localhost");
 		try {
-			//registry = LocateRegistry.getRegistry(IP_ADDRESS, SERVER_PORT);
 			registry = LocateRegistry.getRegistry(IP_ADDRESS);
 			}catch(ConnectException e ){
 				JOptionPane.showMessageDialog(null, "Connection refused. \n", "Error",

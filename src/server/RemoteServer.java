@@ -468,17 +468,16 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 
 	// synchronize the image file
 	@Override
-	public void loadImg(IRemoteClient client) throws RemoteException {
-		client.retrieveImg(img);
+	public void addImg(IRemoteClient client, ImageIcon img) throws RemoteException {
+		this.updateImg(client, img);
 	}
 
 	@Override
 	public ImageIcon getImg() throws RemoteException {
 		return this.img;
 	}
-
-	@Override
-	public void addImg(IRemoteClient client, ImageIcon img) throws RemoteException {
+	
+	public void updateImg(IRemoteClient client, ImageIcon img) throws RemoteException{
 		this.img = img;
 		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
 		for (Entry<String, IRemoteClient> entry : clientset) {
@@ -504,6 +503,21 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 	@Override
 	public boolean permission(String name) throws IOException {
 		return this.getClients().entrySet().iterator().next().getValue().Permission(name);
+	}
+
+	@Override
+	public void addImage(IRemoteClient client, ImageIcon img, int Drawtype) throws RemoteException {
+		IRemoteWBItem image = new RemoteWBItem(client, img, Drawtype);
+		this.shapes.add(image);
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for (Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			if (remoteclient.getClientName().equalsIgnoreCase(client.getClientName()) == false) {
+				remoteclient.retrieveShape(image);
+			}
+			remoteclient.alert("new Image added from " + client.getClientName());
+		}
+		
 	}
 
 }

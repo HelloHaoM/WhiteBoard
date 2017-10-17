@@ -33,8 +33,11 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.MouseAdapter;
@@ -75,6 +78,7 @@ import remote.IRemoteWBItem;
 import remote.IRemoteWBService;
 import server.RemoteClient;
 import server.RemoteServer;
+import server.RemoteWBItem;
 
 /**
  * multi-clients version v0.2
@@ -126,7 +130,6 @@ public class WhiteBoardClient {
 	private String fileName;
 	private String filePath;
 	private boolean isOpenFile;
-	public static JLabel imgLabel;
 
 	private JMenu fileMenu;
 	private JMenuItem newMenuItem;
@@ -298,9 +301,6 @@ public class WhiteBoardClient {
 		return list;
 	}
 	
-	public static JLabel getLabel() {
-		return imgLabel;
-	}
 
 	public void showOptions(String msg) {
 		System.out.println("Show");
@@ -317,7 +317,9 @@ public class WhiteBoardClient {
 	private void initialize() throws RemoteException {
 		frame = new JFrame();
 		// frame.setBounds(100, 100, 450, 300);
-		frame.setSize(1000, 1000);
+		frame.setSize(1000, 800);
+		//Dimension screenSize =Toolkit.getDefaultToolkit().getScreenSize();
+		//frame.setSize((int)(screenSize.width*0.8),(int)(screenSize.height*0.8));
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		frame.setTitle(this.client.getClientName());
@@ -330,15 +332,8 @@ public class WhiteBoardClient {
 			this.paintSurface.addItem(remoteshape);
 		}
 		
-		
-		this.server.loadImg(client);
-		imgLabel = new JLabel();
 		ImageIcon img = this.server.getImg();
-		if (img != null) {
-			frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
-			imgLabel.setIcon(img);
-		}
-		this.paintSurface.add(imgLabel);
+		this.server.addImg(client,img);
 		
 
 		frame.getContentPane().add(paintSurface, BorderLayout.CENTER);
@@ -654,27 +649,16 @@ public class WhiteBoardClient {
 			fileName = file.getName();
 			filePath = file.getPath();
 			frame.setTitle(fileName);
-
-			//paintSurface.removeAll();
 			
 			// Clean all canvas
 			
 
-			//this.server.loadImg(client);
-			//imgLabel = new JLabel();
-			//frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
 			isOpenFile = true;
-			ImageIcon img = new ImageIcon(filePath); 
-			if (this.server.getImg()== null) {
-				frame.getContentPane().add(imgLabel, BorderLayout.CENTER);
-			}
-			imgLabel.setIcon(img);
-
-			//server.loadImg(client);
-			server.addImg(client, img); //add new
+			ImageIcon img = new ImageIcon(filePath);
+			IRemoteWBItem item = new RemoteWBItem(this.client, img, 6);
+			this.paintSurface.addItem(item);
+			server.addImage(this.client, img, 6);
 			
-			//avoid read from the buffer
-			img.getImage().flush();
 			break;
 		case JFileChooser.CANCEL_OPTION:
 
@@ -688,10 +672,10 @@ public class WhiteBoardClient {
 	}
 
 	public void saveFile() throws IOException {
-		String name = frame.getTitle();
-		if (name.equals("") || name.equals(this.client.getClientName())) { // save as a new file
+		//String name = frame.getTitle();
+		//if (name.equals("") || name.equals(this.client.getClientName())) { // save as a new file
 			saveAsFile();
-		} else {
+		/*} else {
 
 			// if (isOpenFile == true)
 			// frame.getContentPane().remove(imgLabel);
@@ -700,6 +684,7 @@ public class WhiteBoardClient {
 
 			FileOutputStream fos = new FileOutputStream(filePath);
 
+			/*
 			BufferedImage imgNew = null;
 			try {
 				imgNew = new Robot().createScreenCapture(new Rectangle(paintSurface.getLocationOnScreen().x,
@@ -711,11 +696,21 @@ public class WhiteBoardClient {
 			BufferedOutputStream bos = new BufferedOutputStream(fos);
 			ImageIO.write(imgNew, "jpg", bos);
 			bos.flush();
-			bos.close();
+			bos.close();*/
+			/*
+			Component component = paintSurface;
+			BufferedImage bufferedImage = (BufferedImage) component.createImage(component.getWidth(),
+					component.getHeight());
+			component.paint(bufferedImage.getGraphics());
+			BufferedOutputStream out = new BufferedOutputStream(fos);
+			ImageIO.write(bufferedImage, "jpg", out);
+			out.flush();
+			out.close();
+			
 			JOptionPane.showMessageDialog(null, "The file was successfully saved.", "Hints",
 					JOptionPane.INFORMATION_MESSAGE);
 			
-		}
+		}*/
 	}
 
 	public void saveAsFile() throws IOException {
@@ -726,6 +721,8 @@ public class WhiteBoardClient {
 		filePath = saveDialog.getDirectory();
 
 		FileOutputStream fos = new FileOutputStream(filePath + fileName);
+		
+		/*
 		BufferedImage bufferedImage = null;
 		try {
 			bufferedImage = new Robot().createScreenCapture(new Rectangle(paintSurface.getLocationOnScreen().x,
@@ -734,13 +731,25 @@ public class WhiteBoardClient {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		BufferedOutputStream output = new BufferedOutputStream(fos);
+		BufferedOutputStream output = new BufferedOutputStream(fos);*/
 
 		String saveFormat = fileName.split("\\.")[1].toString();
-		ImageIO.write(bufferedImage, saveFormat, output);
+		//ImageIO.write(bufferedImage, saveFormat, output);
+		
+		
+		Component component = paintSurface;
+		BufferedImage bufferedImage = (BufferedImage) component.createImage(component.getWidth(),
+				component.getHeight());
+		component.paint(bufferedImage.getGraphics().create(0, 0, component.getWidth(), component.getHeight()));
+		BufferedOutputStream output = new BufferedOutputStream(fos);
+
+		ImageIO.write(bufferedImage, "jpg", output);
 
 		output.flush();
 		output.close();
+		
+		//output.flush();
+		//output.close();
 
 		frame.setTitle(fileName);
 

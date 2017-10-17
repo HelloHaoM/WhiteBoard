@@ -9,6 +9,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
@@ -286,7 +287,10 @@ public class PaintSurface extends JComponent{
 			// example here need to unify the two class: MyShape and RemoteWBItem
 		if(item.getDrawType() == 3 || item.getDrawType() == 5) {
 			shapes.add(new RemoteWBItem(client,item.getShape(), item.getText(), item.getColour(), item.getDrawType(), item.getStrokeValue(), item.getPos()));
-		}else{
+		}else if(item.getDrawType() == 6) {
+			shapes.add(item);
+		}
+		else{
 			shapes.add(new RemoteWBItem(client,item.getShape(), item.getColour(), item.getDrawType(), item.getStrokeValue()));
 		}
 			this.repaint();
@@ -334,6 +338,9 @@ public class PaintSurface extends JComponent{
 				g2.drawString(s.getText(), (s.getPos().y - this.getHeight() / 2), -(s.getPos().x - this.getWidth() / 2));
 				g2.rotate(270 * Math.PI / 180);
 				g2.translate(-this.getWidth() / 2,-this.getHeight() / 2);
+			} else if(s.getDrawType() == 6) {
+				Image image = s.getImage().getImage();
+				g2.drawImage(image, 0, 0, this);
 			}
 			else{
 				g2.draw(s.getShape());

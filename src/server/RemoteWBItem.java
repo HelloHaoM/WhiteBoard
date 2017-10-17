@@ -1,11 +1,15 @@
 package server;
 
 import java.awt.Color;
+import java.awt.Image;
 import java.awt.Point;
 import java.awt.Shape;
+import java.awt.image.BufferedImage;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.Date;
+
+import javax.swing.ImageIcon;
 
 import remote.IRemoteClient;
 import remote.IRemoteWBItem;
@@ -22,8 +26,9 @@ public class RemoteWBItem extends UnicastRemoteObject implements IRemoteWBItem {
     private Color colour;
 
 	private String text;
+	private ImageIcon image;
 	private Point pos;
-	private int drawType; //1: fill, 2: line, 3: text, 4: eraser, 5: verText
+	private int drawType; //1: fill, 2: line, 3: text, 4: eraser, 5: verText, 6:image
 	private int strokeValue;
 	private int eraserSize;
 	
@@ -51,9 +56,16 @@ public class RemoteWBItem extends UnicastRemoteObject implements IRemoteWBItem {
 		this.pos = pos;
 	}
 	
+	public RemoteWBItem(IRemoteClient client, ImageIcon image, int drawType) throws RemoteException {
+		super();
+		this.client = client;
+		this.image = image;
+		this.drawType = drawType;
+	}
+	
 	public void setText(String text) {
 			this.text = text;
-		}
+	}
 
 		
 
@@ -121,5 +133,13 @@ public class RemoteWBItem extends UnicastRemoteObject implements IRemoteWBItem {
 	public String getText()throws RemoteException{
 			return this.text;
 		}
+
+	public ImageIcon getImage() throws RemoteException {
+		return image;
+	}
+
+	public void setImage(ImageIcon image) {
+		this.image = image;
+	}
 
 }
