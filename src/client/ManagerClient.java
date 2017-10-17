@@ -62,7 +62,7 @@ public class ManagerClient {
 					JOptionPane.showMessageDialog(null, "Connecting....\n Pleas wait. ", "Hints", JOptionPane.INFORMATION_MESSAGE);
 					// Retrieve the stub/proxy for the remote object from the registry
 					//Registry registry = LocateRegistry.getRegistry("localhost");
-					Registry registry = LocateRegistry.getRegistry(args[4], Integer.parseInt(args[3]));
+					Registry registry = LocateRegistry.getRegistry(args[4]);
 					
 					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 
@@ -170,6 +170,7 @@ public class ManagerClient {
 					});
 
 				} catch (Exception e) {
+					e.printStackTrace();
 					JOptionPane.showMessageDialog(null, "Invalid request. Try again.", "Error", JOptionPane.ERROR_MESSAGE);
 					System.exit(0);
 				}

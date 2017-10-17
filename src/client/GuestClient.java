@@ -60,7 +60,7 @@ public class GuestClient {
 					Registry registry = null;
 					// args[0] client name, args[1]room name, args[2] port, args[3] ip address
 					try {
-						registry = LocateRegistry.getRegistry(args[3],  Integer.parseInt(args[2]));
+						registry = LocateRegistry.getRegistry(args[3]);
 					} catch (ConnectException e) {
 						JOptionPane.showMessageDialog(null, "Connection refused. \n", "Error",
 								JOptionPane.ERROR_MESSAGE);

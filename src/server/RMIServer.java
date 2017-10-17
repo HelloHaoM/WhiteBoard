@@ -62,9 +62,11 @@ public class RMIServer {
 				String ip = args[2];
 				int ServerPort = Integer.parseInt(args[1]);
 				
-				Registry registry = LocateRegistry.createRegistry(ServerPort);
+				//Registry registry = LocateRegistry.getRegistry(ip, ServerPort);
+				Registry registry = LocateRegistry.getRegistry(ip);
 				registry.bind(IRemoteWBService.LOOKUP_NAME, remoteWB);
 			} catch (ConnectException e) {
+				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Connection Error. \n", "Error", JOptionPane.ERROR_MESSAGE);
 				System.exit(0);
 			}
