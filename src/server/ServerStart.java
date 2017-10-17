@@ -15,15 +15,18 @@ import javax.swing.JTextField;
 public class ServerStart {
 	JLabel serverName;
 	JLabel serverPort;
+	JLabel ipAddress;
 	JTextField name;
 	JTextField port;
+	JTextField address;
 	JButton confirmBtn;
 
 
 	private JFrame frame;
 	
     public static String SERVER_NAME = null;
-    public static int SERVER_PORT = 0;
+    public static int SERVER_PORT = 1099;
+    public static String IP_ADDRESS = "localhost";
     
     public ServerStart() {  
 		initialize();
@@ -34,18 +37,23 @@ public class ServerStart {
 
 		frame.setLayout(new FlowLayout(FlowLayout.CENTER));
 
-    	serverName = new JLabel("please input the server name: ");
+    	serverName = new JLabel("Please input the server name: ");
     	serverName.setFont(new Font("Arial", Font.PLAIN, 12));
     	name = new JTextField(12);
     	frame.add(serverName);
     	frame.add(name);
 
-    	serverPort = new JLabel("please input the server port:  ");
+    	serverPort = new JLabel("Please input the server port:   ");
     	serverPort.setFont(new Font("Arial", Font.PLAIN, 12));
-    	port = new JTextField(11);
+    	port = new JTextField(12);
     	frame.add(serverPort);
     	frame.add(port);
 
+    	ipAddress = new JLabel("Please input the ip address:    ");
+    	ipAddress.setFont(new Font("Arial", Font.PLAIN, 12));
+    	address = new JTextField(12);
+    	frame.add(ipAddress);
+    	frame.add(address);
 
         confirmBtn = new JButton();
         confirmBtn.setText("Confirm");
@@ -59,7 +67,28 @@ public class ServerStart {
 				SERVER_NAME = name.getText();
 				 String portStr = port.getText();
 				 SERVER_PORT = Integer.parseInt(portStr);
-				// TODO Auto-generated method stub
+				 IP_ADDRESS = address.getText();
+				 
+				if(IP_ADDRESS.length() != 0) {
+					String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."+
+		                      "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."+
+		                      "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."+
+		                      "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
+					if (!IP_ADDRESS.matches(regex)) {
+						JOptionPane.showMessageDialog(null,
+		                        "Please input the valid ip address", "Error",
+		                        JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
+					
+				}else {
+					JOptionPane.showMessageDialog(null,
+	                        "Please input the valid ip address", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+				}
+				 
+				 
 				if(SERVER_NAME.length() == 0) {
 					JOptionPane.showMessageDialog(null,
 	                        "Please input the valid server name", "Error",
@@ -73,18 +102,19 @@ public class ServerStart {
 	                        JOptionPane.ERROR_MESSAGE);
 					System.exit(0);
 				}
-				String args[] = {SERVER_NAME, portStr};
+				String args[] = {SERVER_NAME, portStr, IP_ADDRESS};
 				RMIServer.main(args);
 				frame.dispose();
 			}
         });
           
        
-        frame.setSize(370,128);  
+        frame.setSize(370,160);  
         frame.setTitle("Server Start");  
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);  
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  
+        
     }
 
 	public static void main(String[] args) {

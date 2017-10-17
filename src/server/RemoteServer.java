@@ -89,7 +89,7 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		String clientname = client.getClientName();
 		if (clients.containsKey(clientname)) {
 			//client.closeClient(clientname);
-			client.removeDialog(client.getClientName());
+			client.removeDialog();
 			
 			this.clients.remove(clientname);
 			String msg = clientname + " removed from " + this.roomName;
@@ -106,6 +106,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 	
 	@Override
 	public void removeClient(String clientname) throws RemoteException {
+		
+		
 		if (clients.containsKey(clientname)) {	
 			this.clients.remove(clientname);
 			String msg = clientname + " removed from " + this.roomName;
@@ -118,6 +120,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 		} else {
 			System.out.println(clientname + "not exist");
 		}
+		
+		
 	}
 	
 	// remove client and close the window
@@ -369,6 +373,8 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 				IRemoteClient remoteclient = entry.getValue();
 				remoteclient.alert(client.getClientName() + " removed a item");
 				remoteclient.removeShape(item);
+				this.shapes.remove(item);
+				if(this.shapes.contains(item)) {System.out.println("remove failed");}
 			}
 		} else {
 			client.alert("item remove failed");
@@ -384,7 +390,13 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 			remoteclient.alert(remoteclient.getClientName() + " Try to clean the canva.");
 			//this.removeItemsByClient(remoteclient);
 			remoteclient.CleanPaintSurface();
+			
+			//added to remove shapes when u clear screen
+			
+			
 		}
+		this.removeAllItems();
+		
 	}
 
 	@Override
@@ -401,23 +413,33 @@ public class RemoteServer extends UnicastRemoteObject implements IRemoteServer {
 			}
 		}
 		this.removeAllItems();
-		updateGlobalShapes();
+	//	updateGlobalShapes();
 	}
 	
+	@Override
+	public void removeAllClient(IRemoteClient client) throws RemoteException{
+		Set<Entry<String, IRemoteClient>> clientset = this.getClients().entrySet();
+		for (Entry<String, IRemoteClient> entry : clientset) {
+			IRemoteClient remoteclient = entry.getValue();
+			if (!remoteclient.getClientName().equalsIgnoreCase(client.getClientName())) {
+				remoteclient.removeDialog();
+			}
+		}
+	}
 	
 
 	@Override
 	public void removeAllItems() throws RemoteException {
 		this.shapes.clear();
 		this.updateAllClients("all items have been cleared");
-		this.updateGlobalShapes();
+//		this.updateGlobalShapes();
 	}
 
-	private void updateGlobalShapes() throws RemoteException {
+	/*private void updateGlobalShapes() throws RemoteException {
 		for (Entry<String, IRemoteClient> entry : this.clients.entrySet()) {
 			entry.getValue().updateShapes(this.shapes);
 		}
-	}
+	}*/
 
 	/**
 	 * for multi-clients chat

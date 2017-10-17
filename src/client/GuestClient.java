@@ -57,8 +57,15 @@ public class GuestClient {
 
 					// Retrieve the stub/proxy for the remote object from the registry
 					// Registry registry = LocateRegistry.getRegistry("localhost");
-					int port = Integer.parseInt(args[2]);
-					Registry registry = LocateRegistry.getRegistry(port);
+					Registry registry = null;
+					// args[0] client name, args[1]room name, args[2] port, args[3] ip address
+					try {
+						registry = LocateRegistry.getRegistry(args[3],  Integer.parseInt(args[2]));
+					} catch (ConnectException e) {
+						JOptionPane.showMessageDialog(null, "Connection refused. \n", "Error",
+								JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
 
 					IRemoteWBService remoteWB = null;
 					try {
@@ -105,7 +112,7 @@ public class GuestClient {
 						remoteserver.addClient(remoteClient);
 						System.out.println("Client No. :" + remoteClient.getClientId());
 						System.out.println("Client UserName: " + remoteClient.getClientName());
-
+						remoteClient.retrieveImg(remoteserver.getImg());
 						Set<String> nameList = remoteserver.getClientNameList();
 						Iterator<String> it = nameList.iterator();
 						while (it.hasNext()) {

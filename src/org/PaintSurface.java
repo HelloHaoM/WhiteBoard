@@ -51,7 +51,7 @@ public class PaintSurface extends JComponent{
 	private IRemoteClient client;
 	private IRemoteServer remoteserver;
 	private ImageIcon img;
-	ArrayList<IRemoteWBItem> shapes = new ArrayList<IRemoteWBItem>();
+	ArrayList<IRemoteWBItem> shapes ;
 	
 	Point startDrag, endDrag;
 	int[] x = new int[50];
@@ -83,9 +83,8 @@ public class PaintSurface extends JComponent{
 		this.client = client;
 		this.remoteserver = remoteserver;
 		
-		/*for (IRemoteWBItem remoteshape : remoteserver.getShapes()) {
-			this.addItem(remoteshape);			
-	    }*/
+		this.shapes= new ArrayList<IRemoteWBItem>(remoteserver.getShapes());
+	
 		
 		this.setOpaque(false);
 		setBackground(new Color(0,0,0,65));
@@ -320,6 +319,7 @@ public class PaintSurface extends JComponent{
 		try {
 		for(IRemoteWBItem s : shapes){
 			//g2.setPaint(colors[s.getMyColorIndex()]);
+			
 			g2.setPaint(s.getColour());
 			if(s.getDrawType() == 4){
 				g2.setStroke(new BasicStroke(s.getEraserSize()));

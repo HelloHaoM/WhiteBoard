@@ -59,11 +59,10 @@ public class ManagerClient {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-
+					JOptionPane.showMessageDialog(null, "Connecting....\n Pleas wait. ", "Hints", JOptionPane.INFORMATION_MESSAGE);
 					// Retrieve the stub/proxy for the remote object from the registry
 					//Registry registry = LocateRegistry.getRegistry("localhost");
-					int port = Integer.parseInt(args[3]);
-					Registry registry = LocateRegistry.getRegistry(port);
+					Registry registry = LocateRegistry.getRegistry(args[4], Integer.parseInt(args[3]));
 					
 					IRemoteWBService remoteWB = (IRemoteWBService) registry.lookup(IRemoteWBService.LOOKUP_NAME);
 
@@ -138,11 +137,6 @@ public class ManagerClient {
 											"Warning", JOptionPane.YES_NO_OPTION);
 									if (op == JOptionPane.YES_OPTION) {
 										try {
-											Set<String> temp = remoteserver.getClientNameList();	
-											for (String nameWillRemove : temp) {
-												if (!nameWillRemove.equals(manager.getClientName()))
-													remoteserver.getClient(nameWillRemove).removeDialog(nameWillRemove); 
-											}
 											remoteWB.removeRoom(manager, roomname);
 										} catch (RemoteException | NotBoundException e1) {
 											// TODO Auto-generated catch block
@@ -164,15 +158,10 @@ public class ManagerClient {
 									JOptionPane.YES_NO_OPTION);
 							if (i == JOptionPane.YES_OPTION) {
 								try {
-									Set<String> temp = remoteserver.getClientNameList();
-									for (String nameWillRemove : temp) {
-										if (!nameWillRemove.equals(manager.getClientName()))
-											remoteserver.getClient(nameWillRemove).removeDialog(nameWillRemove); 
-									}
 									remoteWB.removeRoom(manager, roomname);
 								} catch (RemoteException | NotBoundException e1) {
 									// TODO Auto-generated catch block
-									e1.printStackTrace();
+									System.out.println("Connection reset");
 								}
 								window.getFrame().dispose();
 								System.exit(0);
@@ -181,7 +170,8 @@ public class ManagerClient {
 					});
 
 				} catch (Exception e) {
-					e.printStackTrace();
+					JOptionPane.showMessageDialog(null, "Invalid request. Try again.", "Error", JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
 				}
 			}
 		});

@@ -45,11 +45,13 @@ public class ClientStart {
 	JLabel room;
 	JLabel clientID;
 	JLabel serverPort;
+	JLabel serverIP;
 
 	JTextField nameClient;
 	JTextField nameRoom;
 	JTextField idClient;
 	JTextField port;
+	JTextField address;
 
 	JButton confirmBtn;
 
@@ -87,6 +89,11 @@ public class ClientStart {
 		jp1.add(serverPort);
 		jp1.add(port);
 		
+		serverIP = new JLabel("Please input the IP address:    ");
+		serverIP.setFont(new Font("Arial", Font.PLAIN, 12));
+		address = new JTextField(12);
+		jp1.add(serverIP);
+		jp1.add(address);
 		
 		level = new JLabel("Client Level: ");
 		level.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -111,6 +118,8 @@ public class ClientStart {
 				String clientStr = nameClient.getText();
 				String roomStr = nameRoom.getText();
 				String portStr = port.getText();
+				String ipStr = address.getText();
+
 
 				// handle the exceptions of wrong inputs
 				// client ID
@@ -150,12 +159,31 @@ public class ClientStart {
 	                        JOptionPane.ERROR_MESSAGE);
 					System.exit(0);
 				}
-
+				//IP address
+				if(ipStr.length() != 0) {
+					String regex = "^(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|[1-9])\\."+
+		                      "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."+
+		                      "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)\\."+
+		                      "(1\\d{2}|2[0-4]\\d|25[0-5]|[1-9]\\d|\\d)$";
+					if (!ipStr.matches(regex)) {
+						JOptionPane.showMessageDialog(null,
+		                        "Please input the valid ip address", "Error",
+		                        JOptionPane.ERROR_MESSAGE);
+						System.exit(0);
+					}
+					
+				}else {
+					JOptionPane.showMessageDialog(null,
+	                        "Please input the valid ip address", "Error",
+	                        JOptionPane.ERROR_MESSAGE);
+					System.exit(0);
+				}
+				
 				if (jcb_level.getSelectedIndex() == 0) { // Manager
-					String[] args = { idStr, clientStr, roomStr, portStr };
+					String[] args = { idStr, clientStr, roomStr, portStr, ipStr };
 					ManagerClient.main(args);
 				} else if (jcb_level.getSelectedIndex() == 1) { // User (Guest)
-					String[] args = { clientStr, roomStr, portStr };
+					String[] args = { clientStr, roomStr, portStr, ipStr };
 					GuestClient.main(args);
 				}
 

@@ -2,6 +2,7 @@ package server;
 
 import java.net.MalformedURLException;
 import java.rmi.AlreadyBoundException;
+import java.rmi.ConnectException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -12,6 +13,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import javax.swing.JOptionPane;
 
 import remote.IRemoteClient;
 import remote.IRemoteServer;
@@ -30,16 +33,25 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 	private Map<String, IRemoteServer> roomMap;
 	private Registry registry;
 	public static  String SERVER_NAME = null;
-	public static int SERVER_PORT = 0;
+	public static int SERVER_PORT = 1099;
+	public static String IP_ADDRESS = "localhost";
 
-	protected RemoteWBService(String servername, String serverport) throws RemoteException {
+	protected RemoteWBService(String servername, String serverport, String serverIP) throws RemoteException {
 		super();
 		SERVER_NAME = servername;
 		SERVER_PORT = Integer.parseInt(serverport);
+		IP_ADDRESS = serverIP;
 		roomNum = 0;
 		roomMap = new ConcurrentHashMap<String, IRemoteServer>();
 		//registry = LocateRegistry.getRegistry("localhost");
-		registry = LocateRegistry.getRegistry(SERVER_PORT);
+		try {
+			registry = LocateRegistry.getRegistry(IP_ADDRESS, SERVER_PORT);
+			}catch(ConnectException e ){
+				JOptionPane.showMessageDialog(null, "Connection refused. \n", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				System.exit(0);
+			}
+		
 	}
 
 	@Override
@@ -94,6 +106,7 @@ public class RemoteWBService extends UnicastRemoteObject implements IRemoteWBSer
 				manager.alert("room has been removed");
 				roomserver.updateAllClients("room has been removed by manager");
 				System.out.println("room has been removed by manager");
+				roomserver.removeAllClient(roomserver.getManager());
 				roomMap.remove(roomname);
 				
 				registry.unbind(roomname);

@@ -67,4 +67,5 @@ public interface IRemoteServer extends Remote{
 	void removeClient(IRemoteClient client) throws RemoteException;
 	void removeClient(String clientname) throws RemoteException;
 	void cleanAll() throws RemoteException;
+	void removeAllClient(IRemoteClient client) throws RemoteException;
 }

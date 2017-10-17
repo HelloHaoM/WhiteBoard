@@ -150,6 +150,7 @@ public class WhiteBoardClient {
 		initialize();
 
 		btnPaintSize.addMouseListener(new MouseAdapter() {
+			
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				showPaintSize();
@@ -617,6 +618,7 @@ public class WhiteBoardClient {
 
 	public void openFile() throws IOException {
 		// File file = null;
+		server.cleanAll();
 		JFileChooser chooseFile = new JFileChooser();
 		chooseFile.setMultiSelectionEnabled(false);
 		chooseFile.setDialogTitle("Pleash choose the file");
@@ -656,7 +658,7 @@ public class WhiteBoardClient {
 			//paintSurface.removeAll();
 			
 			// Clean all canvas
-			server.cleanAll();
+			
 
 			//this.server.loadImg(client);
 			//imgLabel = new JLabel();

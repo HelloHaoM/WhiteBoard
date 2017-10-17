@@ -29,7 +29,7 @@ public interface IRemoteClient extends Remote{
 	
 	public void retrieveShape(IRemoteWBItem shape) throws RemoteException;
 	public void removeShape(IRemoteWBItem shape) throws RemoteException;
-	public void updateShapes(Set<IRemoteWBItem> shapes) throws RemoteException;
+	//ublic void updateShapes(Set<IRemoteWBItem> shapes) throws RemoteException;
 	
 	public void retrieveImg(ImageIcon img) throws RemoteException;
 	//for multi-clients chat only
@@ -37,8 +37,8 @@ public interface IRemoteClient extends Remote{
 
 	boolean Permission(String name) throws IOException;
 
-	void removeDialog(String name) throws RemoteException;
 	void closeClient(String name) throws RemoteException;
 	void CleanPaintSurface() throws RemoteException;
+	void removeDialog() throws RemoteException;
 	
 }

@@ -23,69 +23,71 @@ import org.WhiteBoardClient;
 
 import remote.IRemoteClient;
 import remote.IRemoteWBItem;
+
 /**
- * This is the implement of call back client object
- * multi-clients version v0.1: 
+ * This is the implement of call back client object multi-clients version v0.1:
  * add the PaintSurface and ChatDialog Object in RemoteClient
+ * 
  * @author tianzhangh
  *
  */
 
 @SuppressWarnings("serial")
 public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
-	
+
 	private int clientId;
 	private String clientName;
 	private ClientLevel lv;
 	private PaintSurface paint;
 	private WhiteBoardClient whiteBoardClient;
-	private Set<IRemoteWBItem> shapes;
-	
-	
-	public enum ClientLevel{
+	// private Set<IRemoteWBItem> //s;
+
+	public enum ClientLevel {
 		MANAGER(0), USER(1), VISITOR(2);
-		
+
 		private int level;
-		ClientLevel(int level){
+
+		ClientLevel(int level) {
 			this.level = level;
 		}
-		
+
 		public int getLevel() {
 			return this.level;
 		}
-	} 
+	}
 
 	public RemoteClient() throws RemoteException {
 		super();
-		shapes = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem, Boolean>());
+		// s = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem,
+		// Boolean>());
 	}
-	
-	public RemoteClient(int id, String name) throws RemoteException{
+
+	public RemoteClient(int id, String name) throws RemoteException {
 		super();
 		this.clientId = id;
 		this.setClientName(name);
 		lv = ClientLevel.USER;
-		shapes = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem, Boolean>());
+		// s = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem,
+		// Boolean>());
 	}
-	
-	public RemoteClient(int id, String name, ClientLevel lv) throws RemoteException{
+
+	public RemoteClient(int id, String name, ClientLevel lv) throws RemoteException {
 		super();
 		this.clientId = id;
 		this.clientName = name;
 		this.lv = lv;
-		shapes = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem, Boolean>());
+		// s = Collections.newSetFromMap(new ConcurrentHashMap<IRemoteWBItem,
+		// Boolean>());
 	}
-	
+
 	public void setPaint(PaintSurface paint) {
 		this.paint = paint;
 	}
-	
-	
+
 	public PaintSurface getPaint() {
 		return this.paint;
 	}
-	
-	
+
 	public WhiteBoardClient getWhiteBoardClient() {
 		return whiteBoardClient;
 	}
@@ -93,47 +95,46 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	public void setWhiteBoardClient(WhiteBoardClient whiteBoardClient) {
 		this.whiteBoardClient = whiteBoardClient;
 	}
-	
+
 	@Override
 	public void alert(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
 		System.out.println(msg);
-		if(whiteBoardClient != null){
+		if (whiteBoardClient != null) {
 			whiteBoardClient.showOptions(msg);
 		}
-		
+
 	}
-	
+
 	@Override
-	public void alertClientList(Set<String> clientNameList) throws RemoteException{
-		if(whiteBoardClient != null){
+	public void alertClientList(Set<String> clientNameList) throws RemoteException {
+		if (whiteBoardClient != null) {
 			whiteBoardClient.getDlm().removeAllElements();
 			Iterator<String> it = clientNameList.iterator();
-			while(it.hasNext()){
+			while (it.hasNext()) {
 				String name = it.next();
 				whiteBoardClient.getDlm().addElement(name);
 			}
 			whiteBoardClient.getJlist().setModel(whiteBoardClient.getDlm());
 		}
 	}
-	
 
 	@Override
 	public void setClientId(int id) throws RemoteException {
 		this.clientId = id;
-		
+
 	}
 
 	@Override
 	public int getClientId() throws RemoteException {
-		return this.clientId;		
+		return this.clientId;
 	}
-	
+
 	@Override
-	public String getClientName() throws RemoteException{
+	public String getClientName() throws RemoteException {
 		return clientName;
 	}
-	
+
 	@Override
 	public void setClientName(String clientName) throws RemoteException {
 		this.clientName = clientName;
@@ -142,7 +143,7 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 	@Override
 	public void setClientLevel(ClientLevel lv) throws RemoteException {
 		this.lv = lv;
-		
+
 	}
 
 	@Override
@@ -152,68 +153,67 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 
 	@Override
 	public void retrieveShape(IRemoteWBItem shape) throws RemoteException {
-		//global item updating test 
+		// global item updating test
 		System.out.println("Global item update:" + shape.getOwner().getClientName());
 		this.paint.addItem(shape);
-		this.shapes.add(shape);
-	}
-
-	@Override
-	public void updateShapes(Set<IRemoteWBItem> shapes) throws RemoteException {
-		this.paint.repaint();
-		this.shapes.addAll(shapes);		
+		// s.add(shape);
 	}
 
 	@Override
 	public void removeShape(IRemoteWBItem shape) throws RemoteException {
 		this.paint.repaint();
-		this.shapes.remove(shape);
+		// s.remove(shape);
 	}
-	
+
 	@Override
-	public void CleanPaintSurface() throws RemoteException{
-		this.shapes.removeAll(this.paint.getShpaeList());
+	public void CleanPaintSurface() throws RemoteException {
+		// s.removeAll(this.paint.getShpaeList());
 		this.paint.cleanList();
-		//this.whiteBoardClient.frame.getContentPane().removeAll();
+		// this.whiteBoardClient.frame.getContentPane().removeAll();
 		JLabel imgLabel = this.whiteBoardClient.getLabel();
 		this.whiteBoardClient.frame.getContentPane().remove(imgLabel);
-		
-		/*JLabel imgLabelNew = new JLabel();
-		imgLabel.setOpaque(false);
-		this.whiteBoardClient.frame.getContentPane().add(imgLabelNew);*/
-		
+
+		/*
+		 * JLabel imgLabelNew = new JLabel(); imgLabel.setOpaque(false);
+		 * this.whiteBoardClient.frame.getContentPane().add(imgLabelNew);
+		 */
+
 		this.paint.repaint();
-	
+
 	}
 
 	@Override
 	public void broadCast(String msg) throws RemoteException {
 		// TODO Auto-generated method stub
-		if(whiteBoardClient != null){
+		if (whiteBoardClient != null) {
 			WhiteBoardClient.getShowChat().append(msg);
 		}
 	}
 
 	@Override
-	public void retrieveImg(ImageIcon img) throws RemoteException {	
-		if(img != null) {
+	public void retrieveImg(ImageIcon img) throws RemoteException {
+		if (img != null) {
 			System.out.println("retrieve img");
 			JLabel imgLabel = new JLabel();
-			//imgLabel.setOpaque(false);
+			// imgLabel.setOpaque(false);
 			this.whiteBoardClient.getFrame().getContentPane().add(imgLabel);
+			System.out.println("test 1");
 			imgLabel.setIcon(img);
 		}
-		
+
 	}
-	
+
 	@Override
-	public void removeDialog(String name) throws RemoteException {
+	public void removeDialog() throws RemoteException {
+		Thread thread = new Thread(()->{
 		JOptionPane.showMessageDialog(null, "You have been removed. \n Or the manager closed the room.", "Error",
 				JOptionPane.ERROR_MESSAGE);
+		
 		this.whiteBoardClient.getFrame().dispose();
-		System.exit(0); //add
+		System.exit(0);});
+		thread.start();
 	}
-	
+
 	@Override
 	public void closeClient(String name) throws RemoteException {
 		this.whiteBoardClient.getFrame().dispose();
@@ -221,13 +221,13 @@ public class RemoteClient extends UnicastRemoteObject implements IRemoteClient {
 
 	@Override
 	public boolean Permission(String name) throws IOException {
-		int isAllow = JOptionPane.showConfirmDialog(null, name + " want to join in this room?", "allow", JOptionPane.YES_NO_OPTION);
+		int isAllow = JOptionPane.showConfirmDialog(null, name + " want to join in this room?", "allow",
+				JOptionPane.YES_NO_OPTION);
 		if (isAllow == JOptionPane.YES_OPTION) {
 			System.out.println(name + " join");
 			return true;
-		}		
+		}
 		return false;
 	}
-	
-		
+
 }
